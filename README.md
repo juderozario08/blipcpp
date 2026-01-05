@@ -20,7 +20,7 @@ This project utilizes the following libraries and OS-specific APIs:
 3. [Font Configuration](#font-configuration)
 4. [UI Configuration](#ui-configuration)
 5. [Preferences Configuration](#preferences-configuration)
-6. [Input Configuration](#input-configurations)
+6. [Input Configuration](#input-configuration)
 7. [Plugins](#plugins)
 8. [File Configuration](#file-configuration)
 
