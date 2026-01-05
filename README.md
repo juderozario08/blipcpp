@@ -1,19 +1,42 @@
-Libraries used and APIs used
+# Blip Text Editor
 
-SDL2 for window management
-SDL2_ttf for font rendering
+A high-performance text editor built from scratch, focusing on low-level systems programming, Vim emulation, and efficient cross-platform file watching.
 
-Kqueue for filewatching on macOS
-Inotify for filewatching on Linux
+## 🛠 Tech Stack & APIs
 
-# Conifuration Docs
+This project utilizes the following libraries and OS-specific APIs:
 
-- Booleans are `true` or `false`
-- All colors are in **RGBA Hex Format**
-- Shortcuts must have a Modifier key and keys must be separated by `+` symbol. Eg: `Control+s`
-  - Keybinds are case sensitive
+* **Window Management:** [SDL2](https://www.libsdl.org/)
+* **Font Rendering:** [SDL2_ttf](https://github.com/libsdl-org/SDL_ttf)
+* **File Watching (macOS):** [kqueue](https://man.freebsd.org/cgi/man.cgi?query=kqueue)
+* **File Watching (Linux):** [inotify](https://man7.org/linux/man-pages/man7/inotify.7.html)
 
-### Theme Config (RGBA Hex Format)
+---
+
+## 📖 Table of Contents
+
+1. [Configuration Rules](#configuration-rules)
+2. [Theme Configuration](#theme-configuration)
+3. [Font Configuration](#font-configuration)
+4. [UI Configuration](#ui-configuration)
+5. [Preferences Configuration](#preferences-configuration)
+6. [Input Configuration](#input-configurations)
+7. [Plugins](#plugins)
+8. [File Configuration](#file-configuration)
+
+---
+
+## Configuration Rules
+
+* **Booleans:** Must be `true` or `false`.
+* **Colors:** Formatted in **RGBA Hex** (e.g., `#RRGGBBAA`).
+* **Shortcuts:** Must have a Modifier key and keys must be separated by the `+` symbol (e.g., `Control+s`).
+* **Case Sensitivity:** Keybinds are case sensitive.
+
+---
+
+## Theme Configuration
+
 ```sh
 background = #000000
 foreground = #D4D4D4
@@ -33,7 +56,8 @@ completion_background = #2D2D30
 hover_tab_background = #2A2D2E
 ```
 
-### Font Config
+## Font Configuration
+
 ```sh
 font_family = JetBrains Mono
 font_color = #D4D4D4
@@ -42,7 +66,8 @@ font_size = 14
 line_height = 1.5
 ```
 
-### UI Config
+## UI Configuration
+
 ```sh
 cursor_style = 0 # 0 = Block cursor, 1 = Line cursor
 line_numbers = 0 # 0 = Absolute, 1 = Relative, 2 = Hidden, 3 = AbsoluteAndRelative
@@ -51,10 +76,11 @@ tab_bar_visible = true
 highlight_current_line = true
 show_whitespace = false
 show_indent_guides = true
+ui_scale = 100 # Percent based
 ```
-ui_scale = 100
 
-### Preferences
+## Preferences Configuration
+
 ```sh
 tab_width = 4
 auto_format = 0 # 0 = Manual, 1 = OnSave, 2 = OnPaste
@@ -66,7 +92,8 @@ highlight_active_scope = true
 auto_indent = true
 ```
 
-### Input Config
+## Input Configuration
+
 ```sh
 shortcut_save = Control+s
 shortcut_search = Control+f
@@ -79,7 +106,8 @@ mouse_selection = true
 drag_and_drop = false
 ```
 
-### Plugins
+## Plugins
+
 ```sh
 lsp = false
 snippets = false
@@ -89,7 +117,8 @@ file_explorer = false
 hot_reload = true
 ```
 
-### File Config
+## File Configuration
+
 ```sh
 autosave_mode = 0 # 0 = SaveOnFocus, 1 = SaveDelay, 2 = SaveManual
 exclude_patterns = [".git", "node_modules", "dist"]
