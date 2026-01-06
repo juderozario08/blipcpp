@@ -1,10 +1,13 @@
+#include <SDL_keycode.h>
 #include <charconv>
 #include <config/editor_config.hpp>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <optional>
+#include <sstream>
 #include <string>
+#include <vector>
 
 inline constexpr const int OPACITY = 255;
 
@@ -78,13 +81,56 @@ void handleBoolUpdate(std::string value, bool *dst, bool def) {
     }
 }
 
-// TODO: COMPLETE THE LOGIC IN THIS FUNCTION TO CHECK SHORTCUT KEYBIND SYNTAX
-void handleShortcutString(std::string value, std::string *dst, const char *def) {
-    if (value.length()) {
-        *dst = def;
+void handleShortcutString(std::string value, Shortcut &dst, Shortcut def) {
+    if (value.empty()) {
+        dst = def;
+    }
+    std::stringstream ss(value);
+    std::string segment;
+    std::vector<std::string> parts;
+
+    while (std::getline(ss, segment, '+')) {
+        parts.push_back(segment);
+    }
+
+    if (parts.size() < 2) {
+        dst = def;
         return;
     }
-    *dst = value;
+
+    Uint16 first_mod = 0;
+    if (parts[0] == "Control") {
+        first_mod = KMOD_CTRL;
+    } else if (parts[0] == "Alt") {
+        first_mod = KMOD_ALT;
+    }
+
+    if (first_mod == 0) {
+        dst = def;
+        return;
+    }
+
+    Uint16 detected_mods = first_mod;
+    SDL_Keycode detected_key = SDLK_UNKNOWN;
+
+    for (size_t i = 1; i < parts.size(); i++) {
+        if (parts[i] == "Control") {
+            detected_mods |= KMOD_CTRL;
+        } else if (parts[i] == "Alt") {
+            detected_mods |= KMOD_ALT;
+        } else if (parts[i] == "Shift") {
+            detected_mods |= KMOD_SHIFT;
+        } else {
+            detected_key = SDL_GetKeyFromName(parts[i].c_str());
+        }
+    }
+
+    if (detected_key == SDLK_UNKNOWN) {
+        dst = def;
+    } else {
+        dst.modifiers = detected_mods;
+        dst.key = detected_key;
+    }
 }
 
 void handleThemeConfigUpdates(std::string key, std::string value, EditorConfig *state) {
@@ -279,16 +325,16 @@ void handlePreferenceConfigUpdates(std::string key, std::string value, EditorCon
 void handleInputConfigUpdates(std::string key, std::string value, EditorConfig *state) {
     // Input Config Update
     if (key == constants::input::SHORTCUT_SAVE) {
-        handleShortcutString(value, &state->input.shortcut_save, defaults::input::SHORTCUT_SAVE);
+        handleShortcutString(value, state->input.shortcut_save, defaults::input::SHORTCUT_SAVE);
     }
     if (key == constants::input::SHORTCUT_SEARCH) {
-        handleShortcutString(value, &state->input.shortcut_search, defaults::input::SHORTCUT_SEARCH);
+        handleShortcutString(value, state->input.shortcut_search, defaults::input::SHORTCUT_SEARCH);
     }
     if (key == constants::input::SHORTCUT_SPLIT_VERTICAL) {
-        handleShortcutString(value, &state->input.shortcut_split_vertical, defaults::input::SHORTCUT_SPLIT_VERTICAL);
+        handleShortcutString(value, state->input.shortcut_split_vertical, defaults::input::SHORTCUT_SPLIT_VERTICAL);
     }
     if (key == constants::input::SHORTCUT_SPLIT_HORIZONTAL) {
-        handleShortcutString(value, &state->input.shortcut_split_horizontal, defaults::input::SHORTCUT_SPLIT_HORIZONTAL);
+        handleShortcutString(value, state->input.shortcut_split_horizontal, defaults::input::SHORTCUT_SPLIT_HORIZONTAL);
     }
     if (key == constants::input::VIM_MODE) {
         handleBoolUpdate(value, &state->input.vim_mode, defaults::input::VIM_MODE);
@@ -346,9 +392,6 @@ void handleFileConfigUpdates(std::string key, std::string value, EditorConfig *s
         } catch (...) {
             state->file.autosave_mode = defaults::file::AUTOSAVE_MODE;
         }
-    }
-    if (key == constants::file::EXCLUDE_PATTERNS) {
-        // TODO: Handle logic for converting string to vector
     }
     if (key == constants::file::AUTOSAVE_MODE) {
         handleBoolUpdate(value, &state->file.show_hidden_files, defaults::file::SHOW_HIDDEN_FILES);

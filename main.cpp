@@ -35,6 +35,8 @@ template <typename T> void printVal(T value, const char *str) {
         std::cout << "    ]" << std::endl;
     } else if constexpr (std::is_same_v<Uint8, T> || std::is_same_v<Uint16, T>) {
         printf("    %s = %u\n", str, value);
+    } else if constexpr (std::is_same_v<config::Shortcut, T>) {
+        printf("Mods: %u, Keys: %d\n", value.modifiers, value.key);
     } else {
         std::cout << "    " << str << " = " << value << std::endl;
     }
@@ -107,7 +109,6 @@ void printState(config::EditorConfig *state) {
 
     std::cout << "[File]" << std::endl;
     printVal(state->file.autosave_mode, config::constants::file::AUTOSAVE_MODE);
-    printVal(state->file.exclude_patterns, config::constants::file::EXCLUDE_PATTERNS);
     printVal(state->file.show_hidden_files, config::constants::file::SHOW_HIDDEN_FILES);
 
     std::cout << "\n\n";

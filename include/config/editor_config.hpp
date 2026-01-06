@@ -1,13 +1,18 @@
 #include <SDL.h>
 #include <SDL_stdinc.h>
 #include <string>
-#include <vector>
 
 namespace config {
 enum CursorStyleOpts { CursorBlock, CursorLine };
 enum LineNumberOpts { LineAbsolute, LineRelative, LineHidden, LineAbsoluteAndRelative };
 enum AutoFormatOpts { FormatManual, FormatOnSave, FormatOnPaste };
 enum AutoSaveModeOpts { SaveOnFocus, SaveDelay, SaveManual };
+
+typedef struct Shortcut {
+    Uint16 modifiers = 0;
+    SDL_Keycode key = SDLK_UNKNOWN;
+} Shortcut;
+
 typedef struct Color {
     Uint8 r, g, b, a;
 } Color;
@@ -40,7 +45,7 @@ typedef struct Preference {
 } Preference;
 
 typedef struct Input {
-    std::string shortcut_save, shortcut_search, shortcut_split_vertical, shortcut_split_horizontal;
+    Shortcut shortcut_save, shortcut_search, shortcut_split_vertical, shortcut_split_horizontal;
     bool vim_mode, autocomplete, clipboard_integration, mouse_selection, drag_and_drop;
 } Input;
 
@@ -50,7 +55,6 @@ typedef struct Plugins {
 
 typedef struct File {
     AutoSaveModeOpts autosave_mode;
-    std::vector<std::string> exclude_patterns;
     bool show_hidden_files;
 } File;
 
@@ -140,7 +144,6 @@ inline constexpr const char *HOT_RELOAD = "hot_reload";
 
 namespace file {
 inline constexpr const char *AUTOSAVE_MODE = "autosave_mode";
-inline constexpr const char *EXCLUDE_PATTERNS = "exclude_patterns";
 inline constexpr const char *SHOW_HIDDEN_FILES = "show_hidden_files";
 }
 
@@ -197,10 +200,10 @@ inline constexpr const bool AUTO_INDENT = true;
 }
 
 namespace input {
-inline constexpr const char *SHORTCUT_SAVE = "<C-s>";
-inline constexpr const char *SHORTCUT_SEARCH = "<C-f>";
-inline constexpr const char *SHORTCUT_SPLIT_VERTICAL = "<C-V>";
-inline constexpr const char *SHORTCUT_SPLIT_HORIZONTAL = "<C-H>";
+inline constexpr const Shortcut SHORTCUT_SAVE = {KMOD_CTRL, SDLK_s};
+inline constexpr const Shortcut SHORTCUT_SEARCH = {KMOD_CTRL, SDLK_f};
+inline constexpr const Shortcut SHORTCUT_SPLIT_VERTICAL = {(KMOD_CTRL | KMOD_SHIFT), SDLK_v};
+inline constexpr const Shortcut SHORTCUT_SPLIT_HORIZONTAL = {(KMOD_CTRL | KMOD_SHIFT), SDLK_h};
 inline constexpr const bool VIM_MODE = false;
 inline constexpr const bool AUTOCOMPLETE = true;
 inline constexpr const bool CLIPBOARD_INTEGRATION = true;
