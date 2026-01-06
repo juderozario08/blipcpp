@@ -36,7 +36,7 @@ template <typename T> void printVal(T value, const char *str) {
     } else if constexpr (std::is_same_v<Uint8, T> || std::is_same_v<Uint16, T>) {
         printf("    %s = %u\n", str, value);
     } else if constexpr (std::is_same_v<config::Shortcut, T>) {
-        printf("Mods: %u, Keys: %d\n", value.modifiers, value.key);
+        printf("    %s = (mods: %u, keys: %d)\n", str, value.modifiers, value.key);
     } else {
         std::cout << "    " << str << " = " << value << std::endl;
     }
