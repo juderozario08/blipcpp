@@ -1,4 +1,4 @@
-#include <config/config_watcher.hpp>
+#include <config/watcher.hpp>
 #include <errno.h>
 #include <poll.h>
 #include <sys/inotify.h>
@@ -11,6 +11,9 @@ ConfigWatcher::~ConfigWatcher() { stop(); }
 void ConfigWatcher::start(const std::string &path, OnChangeCallback callback) {
     if (running) {
         stop();
+    }
+    if (worker.joinable()) {
+        worker.join();
     }
     filepath = path;
     action = callback;
@@ -63,8 +66,12 @@ void ConfigWatcher::loop() {
                 continue;
             break;
         }
-        if (poll_num == 0)
+        if (poll_num == 0) {
+            if (wd == -1) {
+                wd = inotify_add_watch(fd, filepath.c_str(), IN_MODIFY | IN_MOVE_SELF | IN_IGNORED);
+            }
             continue;
+        }
 
         if (fds[0].revents & POLLIN) {
             ssize_t len = read(fd, buf, sizeof(buf));
@@ -79,12 +86,7 @@ void ConfigWatcher::loop() {
                 }
 
                 if (event->mask & IN_IGNORED) {
-                    inotify_rm_watch(fd, wd); // Clean up old watch
-                    wd = inotify_add_watch(fd, filepath.c_str(), IN_MODIFY | IN_MOVE_SELF | IN_IGNORED);
-                    if (wd == -1) {
-                        // File might be momentarily missing during atomic swap; retry next loop
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                    }
+                    wd = -1;
                 }
 
                 ptr += sizeof(struct inotify_event) + event->len;

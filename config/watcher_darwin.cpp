@@ -1,5 +1,5 @@
 #include <chrono>
-#include <config/config_watcher.hpp>
+#include <config/watcher.hpp>
 #include <fcntl.h>
 #include <sys/event.h>
 #include <sys/time.h>

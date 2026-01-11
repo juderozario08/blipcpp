@@ -1,5 +1,7 @@
+#pragma once
 #include <SDL.h>
 #include <SDL_stdinc.h>
+#include <editor/app.hpp>
 #include <string>
 
 namespace config {
@@ -68,9 +70,40 @@ typedef struct EditorConfig {
     File file;
 } EditorConfig;
 
-void loadConfig(std::string filepath, EditorConfig *state);
-void parseLine(std::string line, std::string **parsed);
-void updateConfig(EditorConfig *state);
+void loadConfig(std::string filepath, EditorConfig &state);
+std::pair<std::string, std::string> parseLine(std::string line);
+
+void setForegroundColor(editor::AppState &appState, EditorConfig &state);
+void setCursorColor(editor::AppState &appState, EditorConfig &state);
+void setSelectionColor(editor::AppState &appState, EditorConfig &state);
+void setLineNumberColor(editor::AppState &appState, EditorConfig &state);
+void setWhitespaceColor(editor::AppState &appState, EditorConfig &state);
+void setDiffAddColor(editor::AppState &appState, EditorConfig &state);
+void setDiffRemoveColor(editor::AppState &appState, EditorConfig &state);
+void setDiffChangeColor(editor::AppState &appState, EditorConfig &state);
+void setDiffAddColor(editor::AppState &appState, EditorConfig &state);
+void setDiffRemoveColor(editor::AppState &appState, EditorConfig &state);
+void setDiffChangeColor(editor::AppState &appState, EditorConfig &state);
+void setDiagnosticErrorColor(editor::AppState &appState, EditorConfig &state);
+void setDiagnosticWarningColor(editor::AppState &appState, EditorConfig &state);
+void setDiagnosticInfoColor(editor::AppState &appState, EditorConfig &state);
+void setPopupBackgroundColor(editor::AppState &appState, EditorConfig &state);
+void setTooltipBorderColor(editor::AppState &appState, EditorConfig &state);
+void setCompletionBackgroundColor(editor::AppState &appState, EditorConfig &state);
+void setHoverBackgroundColor(editor::AppState &appState, EditorConfig &state);
+
+namespace positions {
+namespace x {
+inline constexpr const int LINE_NUMBER = 30;
+inline constexpr const int DIAGNOSTIC = 10;
+inline constexpr const int GIT = 30;
+}
+namespace width {
+inline constexpr const int LINE_NUMBERS = 15;
+inline constexpr const int DIAGNOSTIC = 15;
+inline constexpr const int GIT = 15;
+}
+}
 
 namespace constants {
 namespace theme {

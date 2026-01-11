@@ -17,22 +17,21 @@ find_package(SDL2 REQUIRED)
 # --- SOURCE FILES ---
 set(SOURCES
     main.cpp
-    config/editor_config.cpp
+    config/editor.cpp
+    editor/app.cpp
+    logging/log.cpp
 )
 
-# Platform-specific implementation for the ConfigWatcher
 if (APPLE)
-    list(APPEND SOURCES config/config_watcher_darwin.cpp)
+    list(APPEND SOURCES config/watcher_darwin.cpp)
 elseif (UNIX AND NOT APPLE)
-    # This matches your filetree: config/config_watcher_linux.cpp
-    list(APPEND SOURCES config/config_watcher_linux.cpp)
+    list(APPEND SOURCES config/watcher_linux.cpp)
 endif()
 
 # --- EXECUTABLE ---
 add_executable(Blip ${SOURCES})
 
 # --- INCLUDE DIRECTORIES ---
-# This allows you to use #include <config/config_watcher.hpp>
 target_include_directories(Blip PRIVATE include)
 
 # --- LINKING ---
