@@ -1,4 +1,4 @@
-#include <config/watcher.hpp>
+#include <blip/platform/watcher.hpp>
 #include <errno.h>
 #include <poll.h>
 #include <sys/inotify.h>

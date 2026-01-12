@@ -1,11 +1,10 @@
 #pragma once
 #include <SDL.h>
-namespace editor {
+
+namespace app {
 typedef struct AppState {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    int window_width;
-    int window_height;
+    int window_height, window_width;
 } AppState;
-void run();
 }

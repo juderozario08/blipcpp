@@ -1,6 +1,6 @@
 #include <SDL.h>
+#include <blip/config/editor.hpp>
 #include <charconv>
-#include <config/editor.hpp>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -425,11 +425,11 @@ void loadConfig(std::string filepath, EditorConfig &state) {
 }
 
 // TODO: ADD THE COLOR ADDING COMPONENTS AS WE GO ALONG THE DESIGN
-void setForegroundColor(editor::AppState &appState, EditorConfig &state) {
+void setForegroundColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.foreground;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }
-void setCursorColor(editor::AppState &appState, EditorConfig &state) {
+void setCursorColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.cursor;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     int h = (int)(state.font.line_height * 10);
@@ -437,35 +437,35 @@ void setCursorColor(editor::AppState &appState, EditorConfig &state) {
         (SDL_Rect){positions::x::LINE_NUMBER + positions::width::LINE_NUMBERS + 5, 0, 15, (int)(state.font.line_height * 10)};
     SDL_RenderFillRect(appState.renderer, &rect);
 }
-void setSelectionColor(editor::AppState &appState, EditorConfig &state) {
+void setSelectionColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.selection;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }
-void setLineNumberColor(editor::AppState &appState, EditorConfig &state) {
+void setLineNumberColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.line_number;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto rect = (SDL_Rect){positions::x::LINE_NUMBER, 0, positions::width::LINE_NUMBERS, appState.window_height};
     SDL_RenderFillRect(appState.renderer, &rect);
 }
-void setWhitespaceColor(editor::AppState &appState, EditorConfig &state) {
+void setWhitespaceColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.whitespace;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }
 
 // NOTE: Height will be determined based on the line that has the git log but on top of the line_number rectangle
-void setDiffAddColor(editor::AppState &appState, EditorConfig &state) {
+void setDiffAddColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.diff_add;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto rect = (SDL_Rect){positions::x::GIT, 0, positions::width::GIT, 20};
     SDL_RenderFillRect(appState.renderer, &rect);
 }
-void setDiffRemoveColor(editor::AppState &appState, EditorConfig &state) {
+void setDiffRemoveColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.diff_remove;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto rect = (SDL_Rect){positions::x::GIT, 20, positions::width::GIT, 20};
     SDL_RenderFillRect(appState.renderer, &rect);
 }
-void setDiffChangeColor(editor::AppState &appState, EditorConfig &state) {
+void setDiffChangeColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.diff_change;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto rect = (SDL_Rect){positions::x::GIT, 40, positions::width::GIT, 20};
@@ -473,21 +473,21 @@ void setDiffChangeColor(editor::AppState &appState, EditorConfig &state) {
 }
 
 // NOTE: Height will be based on line number with diagnostic stuff based on the LSP
-void setDiagnosticErrorColor(editor::AppState &appState, EditorConfig &state) {
+void setDiagnosticErrorColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.diagnostic_error;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto h = (int)(state.font.line_height * 10);
     auto rect = (SDL_Rect){positions::x::DIAGNOSTIC, 0, positions::width::DIAGNOSTIC, h};
     SDL_RenderFillRect(appState.renderer, &rect);
 }
-void setDiagnosticWarningColor(editor::AppState &appState, EditorConfig &state) {
+void setDiagnosticWarningColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.diagnostic_warning;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto h = (int)(state.font.line_height * 10);
     auto rect = (SDL_Rect){positions::x::DIAGNOSTIC, h, positions::width::DIAGNOSTIC, h};
     SDL_RenderFillRect(appState.renderer, &rect);
 }
-void setDiagnosticInfoColor(editor::AppState &appState, EditorConfig &state) {
+void setDiagnosticInfoColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.diagnostic_info;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     auto h = (int)(state.font.line_height * 10);
@@ -495,19 +495,19 @@ void setDiagnosticInfoColor(editor::AppState &appState, EditorConfig &state) {
     SDL_RenderFillRect(appState.renderer, &rect);
 }
 
-void setPopupBackgroundColor(editor::AppState &appState, EditorConfig &state) {
+void setPopupBackgroundColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.popup_background;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }
-void setTooltipBorderColor(editor::AppState &appState, EditorConfig &state) {
+void setTooltipBorderColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.tooltip_border;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }
-void setCompletionBackgroundColor(editor::AppState &appState, EditorConfig &state) {
+void setCompletionBackgroundColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.completion_background;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }
-void setHoverBackgroundColor(editor::AppState &appState, EditorConfig &state) {
+void setHoverBackgroundColor(app::AppState &appState, EditorConfig &state) {
     auto c = state.theme.hover_tab_background;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
 }

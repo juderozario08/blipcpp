@@ -1,6 +1,6 @@
 #pragma once
-#include <config/editor.hpp>
+#include <blip/config/editor.hpp>
 
-namespace logging {
+namespace core {
 void printState(config::EditorConfig &state);
 }

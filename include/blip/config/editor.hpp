@@ -1,7 +1,6 @@
 #pragma once
 #include <SDL.h>
-#include <SDL_stdinc.h>
-#include <editor/app.hpp>
+#include <blip/app/main.hpp>
 #include <string>
 
 namespace config {
@@ -73,24 +72,24 @@ typedef struct EditorConfig {
 void loadConfig(std::string filepath, EditorConfig &state);
 std::pair<std::string, std::string> parseLine(std::string line);
 
-void setForegroundColor(editor::AppState &appState, EditorConfig &state);
-void setCursorColor(editor::AppState &appState, EditorConfig &state);
-void setSelectionColor(editor::AppState &appState, EditorConfig &state);
-void setLineNumberColor(editor::AppState &appState, EditorConfig &state);
-void setWhitespaceColor(editor::AppState &appState, EditorConfig &state);
-void setDiffAddColor(editor::AppState &appState, EditorConfig &state);
-void setDiffRemoveColor(editor::AppState &appState, EditorConfig &state);
-void setDiffChangeColor(editor::AppState &appState, EditorConfig &state);
-void setDiffAddColor(editor::AppState &appState, EditorConfig &state);
-void setDiffRemoveColor(editor::AppState &appState, EditorConfig &state);
-void setDiffChangeColor(editor::AppState &appState, EditorConfig &state);
-void setDiagnosticErrorColor(editor::AppState &appState, EditorConfig &state);
-void setDiagnosticWarningColor(editor::AppState &appState, EditorConfig &state);
-void setDiagnosticInfoColor(editor::AppState &appState, EditorConfig &state);
-void setPopupBackgroundColor(editor::AppState &appState, EditorConfig &state);
-void setTooltipBorderColor(editor::AppState &appState, EditorConfig &state);
-void setCompletionBackgroundColor(editor::AppState &appState, EditorConfig &state);
-void setHoverBackgroundColor(editor::AppState &appState, EditorConfig &state);
+void setForegroundColor(app::AppState &appState, EditorConfig &state);
+void setCursorColor(app::AppState &appState, EditorConfig &state);
+void setSelectionColor(app::AppState &appState, EditorConfig &state);
+void setLineNumberColor(app::AppState &appState, EditorConfig &state);
+void setWhitespaceColor(app::AppState &appState, EditorConfig &state);
+void setDiffAddColor(app::AppState &appState, EditorConfig &state);
+void setDiffRemoveColor(app::AppState &appState, EditorConfig &state);
+void setDiffChangeColor(app::AppState &appState, EditorConfig &state);
+void setDiffAddColor(app::AppState &appState, EditorConfig &state);
+void setDiffRemoveColor(app::AppState &appState, EditorConfig &state);
+void setDiffChangeColor(app::AppState &appState, EditorConfig &state);
+void setDiagnosticErrorColor(app::AppState &appState, EditorConfig &state);
+void setDiagnosticWarningColor(app::AppState &appState, EditorConfig &state);
+void setDiagnosticInfoColor(app::AppState &appState, EditorConfig &state);
+void setPopupBackgroundColor(app::AppState &appState, EditorConfig &state);
+void setTooltipBorderColor(app::AppState &appState, EditorConfig &state);
+void setCompletionBackgroundColor(app::AppState &appState, EditorConfig &state);
+void setHoverBackgroundColor(app::AppState &appState, EditorConfig &state);
 
 namespace positions {
 namespace x {

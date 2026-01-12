@@ -1,9 +1,9 @@
-#include <config/editor.hpp>
+#include <blip/config/editor.hpp>
+#include <blip/core/log.hpp>
 #include <iostream>
-#include <logging/log.hpp>
 #include <vector>
 
-namespace logging {
+namespace core {
 template <typename T> void printVal(T value, const char *str) {
     if constexpr (std::is_same_v<T, config::Color>) {
         printf("    %s = rgba(%u,%u,%u,%u)\n", str, value.r, value.g, value.b, value.a);

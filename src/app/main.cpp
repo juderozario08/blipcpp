@@ -1,35 +1,32 @@
 #include <SDL.h>
-#include <config/editor.hpp>
-#include <config/watcher.hpp>
-#include <editor/app.hpp>
+#include <blip/app/main.hpp>
+#include <blip/config/editor.hpp>
+#include <blip/core/log.hpp>
+#include <blip/platform/watcher.hpp>
 #include <iostream>
-#include <logging/log.hpp>
 
-namespace editor {
-AppState appState;
-
-void drawBackground(config::EditorConfig &state) {
+void drawBackground(app::AppState &appState, config::EditorConfig &state) {
     auto c = state.theme.background;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     SDL_RenderClear(appState.renderer);
 }
 // TODO: FIGURE THIS OUT LATER
-void drawText(config::EditorConfig &state) {
+void drawText(app::AppState &appState, config::EditorConfig &state) {
     config::setForegroundColor(appState, state);
     config::setSelectionColor(appState, state);
     config::setCursorColor(appState, state);
 }
-void drawDiagnostic(config::EditorConfig &state) {
+void drawDiagnostic(app::AppState &appState, config::EditorConfig &state) {
     config::setDiagnosticErrorColor(appState, state);
     config::setDiagnosticInfoColor(appState, state);
     config::setDiagnosticWarningColor(appState, state);
 }
-void drawGitLogs(config::EditorConfig &state) {
+void drawGitLogs(app::AppState &appState, config::EditorConfig &state) {
     config::setDiffAddColor(appState, state);
     config::setDiffChangeColor(appState, state);
     config::setDiffRemoveColor(appState, state);
 }
-void drawState(config::EditorConfig &state) {
+void drawState(app::AppState &appState, config::EditorConfig &state) {
     config::setLineNumberColor(appState, state);
     config::setPopupBackgroundColor(appState, state);
     config::setTooltipBorderColor(appState, state);
@@ -37,7 +34,7 @@ void drawState(config::EditorConfig &state) {
     config::setHoverBackgroundColor(appState, state);
 }
 
-void eventLoop(config::ConfigWatcher &watcher, config::EditorConfig &state) {
+void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::EditorConfig &state) {
     auto running = true;
     SDL_Event event;
 
@@ -55,16 +52,17 @@ void eventLoop(config::ConfigWatcher &watcher, config::EditorConfig &state) {
         }
 
         watcher.check();
-        drawBackground(state);
-        drawDiagnostic(state);
-        drawState(state);
-        drawGitLogs(state);
-        drawText(state);
+        drawBackground(appState, state);
+        drawDiagnostic(appState, state);
+        drawState(appState, state);
+        drawGitLogs(appState, state);
+        drawText(appState, state);
         SDL_RenderPresent(appState.renderer);
     }
 }
 
 void run() {
+    app::AppState appState;
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         std::cerr << "SDL Init Error" << std::endl;
         exit(EXIT_FAILURE);
@@ -87,16 +85,20 @@ void run() {
     // TODO: Calculate filepath using system file lookup
     std::string filepath = "config.ini";
     config::loadConfig(filepath, state);
-    logging::printState(state);
+    core::printState(state);
     watcher.start(filepath, [&state, filepath]() {
         config::loadConfig(filepath, state);
-        logging::printState(state);
+        core::printState(state);
     });
 
-    eventLoop(watcher, state);
+    eventLoop(appState, watcher, state);
 
     SDL_DestroyRenderer(appState.renderer);
     SDL_DestroyWindow(appState.window);
     SDL_Quit();
 }
+
+int main() {
+    run();
+    return 0;
 }
