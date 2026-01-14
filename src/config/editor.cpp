@@ -7,9 +7,8 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
-
-inline constexpr const int OPACITY = 255;
 
 namespace config {
 std::string trim(const std::string &s) {
@@ -35,26 +34,29 @@ std::pair<std::string, std::string> parseLine(std::string line) {
     return {"", ""};
 }
 
+template <typename T> bool parseNum(std::string_view sub, T &out, int base = 10) {
+    if constexpr (std::is_same_v<int, T> || std::is_same_v<Uint8, T>) {
+        auto [ptr, ec] = std::from_chars(sub.data(), sub.data() + sub.size(), out, base);
+        return ec == std::errc{};
+    }
+    return false;
+}
+
 std::optional<Color> hexToColor(std::string_view hex) {
     if (hex.empty() || hex[0] != '#' || (hex.length() != 7 && hex.length() != 9)) {
         return std::nullopt;
     }
 
     Color color;
-    auto parse = [&](std::string_view sub, Uint8 &out) -> bool {
-        auto [ptr, ec] = std::from_chars(sub.data(), sub.data() + sub.size(), out, 16);
-        return ec == std::errc{};
-    };
-
-    if (!parse(hex.substr(1, 2), color.r))
+    if (!parseNum(hex.substr(1, 2), color.r, 16))
         return std::nullopt;
-    if (!parse(hex.substr(3, 2), color.g))
+    if (!parseNum(hex.substr(3, 2), color.g, 16))
         return std::nullopt;
-    if (!parse(hex.substr(5, 2), color.b))
+    if (!parseNum(hex.substr(5, 2), color.b, 16))
         return std::nullopt;
 
     if (hex.length() == 9) {
-        if (!parse(hex.substr(7, 2), color.a))
+        if (!parseNum(hex.substr(7, 2), color.a))
             return std::nullopt;
     } else {
         color.a = 255;
@@ -133,6 +135,68 @@ void handleShortcutString(std::string value, Shortcut &dst, Shortcut def) {
     }
 }
 
+void setDefaultConifg(EditorConfig &state) {
+    state.theme.background = defaults::theme::BACKGROUND;
+    state.theme.foreground = defaults::theme::FOREGROUND;
+    state.theme.cursor = defaults::theme::CURSOR;
+    state.theme.selection = defaults::theme::SELECTION;
+    state.theme.line_number = defaults::theme::LINE_NUMBER;
+    state.theme.whitespace = defaults::theme::WHITESPACE;
+    state.theme.diff_add = defaults::theme::DIFF_ADD;
+    state.theme.diff_change = defaults::theme::DIFF_CHANGE;
+    state.theme.diff_remove = defaults::theme::DIFF_REMOVE;
+    state.theme.diagnostic_info = defaults::theme::DIAGNOSTIC_INFO;
+    state.theme.diagnostic_error = defaults::theme::DIAGNOSTIC_ERROR;
+    state.theme.diagnostic_warning = defaults::theme::DIAGNOSTIC_WARNING;
+    state.theme.popup_background = defaults::theme::POPUP_BACKGROUND;
+    state.theme.tooltip_border = defaults::theme::TOOLTIP_BORDER;
+    state.theme.completion_background = defaults::theme::COMPLETION_BACKGROUND;
+
+    state.font.family = defaults::font::FAMILY;
+    state.font.color = defaults::font::COLOR;
+    state.font.ligatures = defaults::font::LIGATURES;
+    state.font.size = defaults::font::SIZE;
+    state.font.line_height = defaults::font::LINE_HEIGHT;
+
+    state.ui.cursor_style = defaults::ui::CURSOR_STYLE;
+    state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
+    state.ui.status_bar_visible = defaults::ui::STATUS_BAR_VISIBLE;
+    state.ui.tab_bar_visible = defaults::ui::TAB_BAR_VISIBLE;
+    state.ui.highlight_current_line = defaults::ui::HIGHLIGHT_CURRENT_LINE;
+    state.ui.show_whitespace = defaults::ui::SHOW_WHITESPACE;
+    state.ui.show_indent_guides = defaults::ui::SHOW_INDENT_GUIDES;
+    state.ui.ui_scale = defaults::ui::UI_SCALE;
+
+    state.preference.tab_width = defaults::preference::TAB_WIDTH;
+    state.preference.auto_format = defaults::preference::AUTO_FORMAT;
+    state.preference.auto_indent = defaults::preference::AUTO_INDENT;
+    state.preference.auto_close_brackets = defaults::preference::AUTO_CLOSE_BRACKETS;
+    state.preference.bracket_matching = defaults::preference::BRACKET_MATCHING;
+    state.preference.word_wrap = defaults::preference::WORD_WRAP;
+    state.preference.trim_trailing_whitespace_on_save = defaults::preference::TRIM_TRAILING_WHITESPACE_ON_SAVE;
+    state.preference.highlight_active_scope = defaults::preference::HIGHLIGHT_ACTIVE_SCOPE;
+
+    state.input.shortcut_save = defaults::input::SHORTCUT_SAVE;
+    state.input.shortcut_search = defaults::input::SHORTCUT_SEARCH;
+    state.input.shortcut_split_horizontal = defaults::input::SHORTCUT_SPLIT_HORIZONTAL;
+    state.input.shortcut_split_vertical = defaults::input::SHORTCUT_SPLIT_VERTICAL;
+    state.input.vim_mode = defaults::input::VIM_MODE;
+    state.input.autocomplete = defaults::input::AUTOCOMPLETE;
+    state.input.clipboard_integration = defaults::input::CLIPBOARD_INTEGRATION;
+    state.input.mouse_selection = defaults::input::MOUSE_SELECTION;
+    state.input.drag_and_drop = defaults::input::DRAG_AND_DROP;
+
+    state.plugins.file_explorer = defaults::plugins::FILE_EXPLORER;
+    state.plugins.snippets = defaults::plugins::SNIPPETS;
+    state.plugins.git = defaults::plugins::GIT;
+    state.plugins.hot_reload = defaults::plugins::HOT_RELOAD;
+    state.plugins.linter = defaults::plugins::LINTER;
+    state.plugins.lsp = defaults::plugins::LSP;
+
+    state.file.show_hidden_files = defaults::file::SHOW_HIDDEN_FILES;
+    state.file.autosave_mode = defaults::file::AUTOSAVE_MODE;
+}
+
 void handleThemeConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     if (key == constants::theme::BACKGROUND) {
         handleColorUpdate(value, &state.theme.background, defaults::theme::BACKGROUND);
@@ -183,11 +247,10 @@ void handleThemeConfigUpdates(std::string key, std::string value, EditorConfig &
         handleColorUpdate(value, &state.theme.hover_tab_background, defaults::theme::HOVER_TAB_BACKGROUND);
     }
 }
-
 void handleFontConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     // Font Config Updates
     if (key == constants::font::FAMILY) {
-        // MAKE SURE TO CHECK IF THE "VALUE = FONT" FIRST EXISTS OR NOT
+        // TODO: MAKE SURE TO CHECK IF THE "VALUE = FONT" FIRST EXISTS OR NOT
         state.font.family = value.length() > 0 ? value : defaults::font::FAMILY;
     }
     if (key == constants::font::COLOR) {
@@ -197,10 +260,7 @@ void handleFontConfigUpdates(std::string key, std::string value, EditorConfig &s
         handleBoolUpdate(value, &state.font.ligatures, defaults::font::LIGATURES);
     }
     if (key == constants::font::SIZE) {
-        try {
-            auto size = static_cast<int>(std::stoi(value));
-            state.font.size = size <= 0 ? defaults::font::SIZE : size;
-        } catch (...) {
+        if (!parseNum(value, state.font.size)) {
             state.font.size = defaults::font::SIZE;
         }
     }
@@ -213,40 +273,47 @@ void handleFontConfigUpdates(std::string key, std::string value, EditorConfig &s
         }
     }
 }
-
 void handleUIConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     if (key == constants::ui::CURSOR_STYLE) {
-        try {
-            auto style = static_cast<CursorStyleOpts>(std::stoi(value));
-            switch (style) {
-            case CursorStyleOpts::CursorBlock:
-            case CursorStyleOpts::CursorLine:
-                state.ui.cursor_style = style;
-                break;
-            default:
-                state.ui.cursor_style = defaults::ui::CURSOR_STYLE;
-                break;
-            }
-        } catch (...) {
+        int style;
+        if (!parseNum(value, style)) {
             state.ui.cursor_style = defaults::ui::CURSOR_STYLE;
+        } else {
+            if (style > 0 && style < static_cast<int>(CursorStyleOpts::COUNT)) {
+                switch (auto ns = static_cast<CursorStyleOpts>(style)) {
+                case CursorStyleOpts::CursorBlock:
+                case CursorStyleOpts::CursorLine:
+                    state.ui.cursor_style = ns;
+                    break;
+                default:
+                    state.ui.cursor_style = defaults::ui::CURSOR_STYLE;
+                    break;
+                }
+            } else {
+                state.ui.cursor_style = defaults::ui::CURSOR_STYLE;
+            }
         }
     }
     if (key == constants::ui::LINE_NUMBERS) {
-        try {
-            auto style = static_cast<LineNumberOpts>(std::stoi(value));
-            switch (style) {
-            case LineNumberOpts::LineAbsolute:
-            case LineNumberOpts::LineHidden:
-            case LineNumberOpts::LineRelative:
-            case LineNumberOpts::LineAbsoluteAndRelative:
-                state.ui.line_numbers = style;
-                break;
-            default:
-                state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
-                break;
-            }
-        } catch (...) {
+        int style;
+        if (!parseNum(value, style)) {
             state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
+        } else {
+            if (style > 0 && style < static_cast<int>(LineNumberOpts::COUNT)) {
+                switch (auto ln = static_cast<LineNumberOpts>(style)) {
+                case LineNumberOpts::LineAbsolute:
+                case LineNumberOpts::LineHidden:
+                case LineNumberOpts::LineRelative:
+                case LineNumberOpts::LineAbsoluteAndRelative:
+                    state.ui.line_numbers = ln;
+                    break;
+                default:
+                    state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
+                    break;
+                }
+            } else {
+                state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
+            }
         }
     }
     if (key == constants::ui::STATUS_BAR_VISIBLE) {
@@ -265,40 +332,43 @@ void handleUIConfigUpdates(std::string key, std::string value, EditorConfig &sta
         handleBoolUpdate(value, &state.ui.show_indent_guides, defaults::ui::SHOW_INDENT_GUIDES);
     }
     if (key == constants::ui::UI_SCALE) {
-        try {
-            auto scale = static_cast<int>(std::stof(value));
-            state.ui.ui_scale = scale <= 5 ? defaults::ui::UI_SCALE : scale;
-        } catch (...) {
+        int scale;
+        if (!parseNum(value, scale)) {
             state.ui.ui_scale = defaults::ui::UI_SCALE;
+        } else {
+            state.ui.ui_scale = scale <= 5 ? defaults::ui::UI_SCALE : scale;
         }
     }
 }
-
 void handlePreferenceConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     // Preference Config Update
     if (key == constants::preference::TAB_WIDTH) {
-        try {
-            auto width = static_cast<int>(std::stoi(value));
+        int width;
+        if (!parseNum(value, width)) {
             state.preference.tab_width = width <= 2 ? defaults::preference::TAB_WIDTH : width;
-        } catch (...) {
+        } else {
             state.preference.tab_width = defaults::preference::TAB_WIDTH;
         }
     }
     if (key == constants::preference::AUTO_FORMAT) {
-        try {
-            auto format = static_cast<AutoFormatOpts>(std::stoi(value));
-            switch (format) {
-            case AutoFormatOpts::FormatManual:
-            case AutoFormatOpts::FormatOnSave:
-            case AutoFormatOpts::FormatOnPaste:
-                state.preference.auto_format = format;
-                break;
-            default:
-                state.preference.auto_format = defaults::preference::AUTO_FORMAT;
-                break;
-            }
-        } catch (...) {
+        int format;
+        if (!parseNum(value, format)) {
             state.preference.auto_format = defaults::preference::AUTO_FORMAT;
+        } else {
+            if (format > 0 && format < static_cast<int>(AutoFormatOpts::COUNT)) {
+                switch (auto fmt = static_cast<AutoFormatOpts>(format)) {
+                case AutoFormatOpts::FormatManual:
+                case AutoFormatOpts::FormatOnSave:
+                case AutoFormatOpts::FormatOnPaste:
+                    state.preference.auto_format = fmt;
+                    break;
+                default:
+                    state.preference.auto_format = defaults::preference::AUTO_FORMAT;
+                    break;
+                }
+            } else {
+                state.preference.auto_format = defaults::preference::AUTO_FORMAT;
+            }
         }
     }
     if (key == constants::preference::BRACKET_MATCHING) {
@@ -321,7 +391,6 @@ void handlePreferenceConfigUpdates(std::string key, std::string value, EditorCon
         handleBoolUpdate(value, &state.preference.auto_indent, defaults::preference::AUTO_INDENT);
     }
 }
-
 void handleInputConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     // Input Config Update
     if (key == constants::input::SHORTCUT_SAVE) {
@@ -352,7 +421,6 @@ void handleInputConfigUpdates(std::string key, std::string value, EditorConfig &
         handleBoolUpdate(value, &state.input.drag_and_drop, defaults::input::DRAG_AND_DROP);
     }
 }
-
 void handlePluginsConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     // Plugins Config Updates
     if (key == constants::plugins::LSP) {
@@ -374,23 +442,27 @@ void handlePluginsConfigUpdates(std::string key, std::string value, EditorConfig
         handleBoolUpdate(value, &state.plugins.hot_reload, defaults::plugins::HOT_RELOAD);
     }
 }
-
 void handleFileConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     // File Config Updates
     if (key == constants::file::AUTOSAVE_MODE) {
-        try {
-            switch (auto mode = static_cast<AutoSaveModeOpts>(std::stoi(value))) {
-            case AutoSaveModeOpts::SaveManual:
-            case AutoSaveModeOpts::SaveDelay:
-            case AutoSaveModeOpts::SaveOnFocus:
-                state.file.autosave_mode = mode;
-                break;
-            default:
-                state.file.autosave_mode = defaults::file::AUTOSAVE_MODE;
-                break;
-            }
-        } catch (...) {
+        int m;
+        if (!parseNum(value, m)) {
             state.file.autosave_mode = defaults::file::AUTOSAVE_MODE;
+        } else {
+            if (m > 0 && m < static_cast<int>(AutoSaveModeOpts::COUNT)) {
+                switch (auto mode = static_cast<AutoSaveModeOpts>(m)) {
+                case AutoSaveModeOpts::SaveManual:
+                case AutoSaveModeOpts::SaveDelay:
+                case AutoSaveModeOpts::SaveOnFocus:
+                    state.file.autosave_mode = mode;
+                    break;
+                default:
+                    state.file.autosave_mode = defaults::file::AUTOSAVE_MODE;
+                    break;
+                }
+            } else {
+                state.file.autosave_mode = defaults::file::AUTOSAVE_MODE;
+            }
         }
     }
     if (key == constants::file::AUTOSAVE_MODE) {

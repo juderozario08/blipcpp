@@ -10,6 +10,7 @@ void drawBackground(app::AppState &appState, config::EditorConfig &state) {
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
     SDL_RenderClear(appState.renderer);
 }
+
 // TODO: FIGURE THIS OUT LATER
 void drawText(app::AppState &appState, config::EditorConfig &state) {
     config::setForegroundColor(appState, state);
@@ -80,6 +81,7 @@ void run() {
     }
 
     config::EditorConfig state;
+    config::setDefaultConifg(state);
     config::ConfigWatcher watcher;
 
     // TODO: Calculate filepath using system file lookup

@@ -4,10 +4,10 @@
 #include <string>
 
 namespace config {
-enum CursorStyleOpts { CursorBlock, CursorLine };
-enum LineNumberOpts { LineAbsolute, LineRelative, LineHidden, LineAbsoluteAndRelative };
-enum AutoFormatOpts { FormatManual, FormatOnSave, FormatOnPaste };
-enum AutoSaveModeOpts { SaveOnFocus, SaveDelay, SaveManual };
+enum class CursorStyleOpts { CursorBlock, CursorLine, COUNT };
+enum class LineNumberOpts { LineAbsolute, LineRelative, LineHidden, LineAbsoluteAndRelative, COUNT };
+enum class AutoFormatOpts { FormatManual, FormatOnSave, FormatOnPaste, COUNT };
+enum class AutoSaveModeOpts { SaveOnFocus, SaveDelay, SaveManual, COUNT };
 
 typedef struct Shortcut {
     Uint16 modifiers = 0;
@@ -71,7 +71,7 @@ typedef struct EditorConfig {
 
 void loadConfig(std::string filepath, EditorConfig &state);
 std::pair<std::string, std::string> parseLine(std::string line);
-
+void setDefaultConifg(EditorConfig &state);
 void setForegroundColor(app::AppState &appState, EditorConfig &state);
 void setCursorColor(app::AppState &appState, EditorConfig &state);
 void setSelectionColor(app::AppState &appState, EditorConfig &state);

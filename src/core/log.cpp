@@ -1,26 +1,19 @@
 #include <blip/config/editor.hpp>
 #include <blip/core/log.hpp>
 #include <iostream>
-#include <vector>
+#include <string>
+#include <type_traits>
 
 namespace core {
 template <typename T> void printVal(T value, const char *str) {
     if constexpr (std::is_same_v<T, config::Color>) {
         printf("    %s = rgba(%u,%u,%u,%u)\n", str, value.r, value.g, value.b, value.a);
-    } else if constexpr (std::is_same_v<T, std::vector<std::string>>) {
-        if (value.size() <= 0) {
-            return;
-        }
-        std::cout << "    " << str << "= [" << std::endl;
-        for (const auto &el : value) {
-            std::cout << "\t" << el << std::endl;
-        }
-        std::cout << "    ]" << std::endl;
     } else if constexpr (std::is_same_v<Uint8, T> || std::is_same_v<Uint16, T>) {
         printf("    %s = %u\n", str, value);
     } else if constexpr (std::is_same_v<config::Shortcut, T>) {
         printf("    %s = (mods: %u, keys: %d)\n", str, value.modifiers, value.key);
-    } else {
+    } else if constexpr (std::is_same_v<T, bool> || std::is_same_v<T, std::string> || std::is_same_v<T, char *> ||
+                         std::is_same_v<T, Uint8> || std::is_same_v<T, int> || std::is_same_v<T, float>) {
         std::cout << "    " << str << " = " << value << std::endl;
     }
 }
