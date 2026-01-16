@@ -99,8 +99,8 @@ inline constexpr const int GIT = 30;
 }
 namespace width {
 inline constexpr const int LINE_NUMBERS = 15;
-inline constexpr const int DIAGNOSTIC = 15;
-inline constexpr const int GIT = 15;
+inline constexpr const int DIAGNOSTIC = 2;
+inline constexpr const int GIT = 2;
 }
 }
 
