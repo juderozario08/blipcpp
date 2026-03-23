@@ -54,9 +54,6 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
 
         watcher.check();
         drawBackground(appState, state);
-        drawDiagnostic(appState, state);
-        drawState(appState, state);
-        drawGitLogs(appState, state);
         drawText(appState, state);
         SDL_RenderPresent(appState.renderer);
     }

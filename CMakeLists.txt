@@ -8,20 +8,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL2 REQUIRED)
 
-set(SOURCES
-    src/app/main.cpp
+set(CORE_SOURCES
     src/config/editor.cpp
     src/core/log.cpp
-    src/tests/tests.cpp
+    src/buffer/table.cpp
 )
 
 if (APPLE)
-    list(APPEND SOURCES src/platform/darwin/watcher.cpp)
+    list(APPEND CORE_SOURCES src/platform/darwin/watcher.cpp)
 elseif (UNIX AND NOT APPLE)
-    list(APPEND SOURCES src/platform/linux/watcher.cpp)
+    list(APPEND CORE_SOURCES src/platform/linux/watcher.cpp)
 endif()
 
-add_executable(Blip ${SOURCES})
-
+add_executable(Blip src/app/main.cpp ${CORE_SOURCES})
 target_include_directories(Blip PRIVATE include)
 target_link_libraries(Blip PRIVATE SDL2::SDL2)
+
+add_executable(BlipTests src/tests/table.cpp ${CORE_SOURCES})
+target_include_directories(BlipTests PRIVATE include)
+target_link_libraries(BlipTests PRIVATE SDL2::SDL2)
