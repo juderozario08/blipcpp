@@ -43,7 +43,6 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
     auto running = true;
     SDL_Event event;
 
-    size_t cursor_pos = 0;
     bool dirty = true;
 
     while (running) {
@@ -58,11 +57,11 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 }
                 break;
             case SDL_KEYDOWN:
-                if (event.key.keysym.sym == SDLK_LEFT && cursor_pos > 0) {
-                    cursor_pos--;
+                if (event.key.keysym.sym == SDLK_LEFT && buffer.getCursor() > 0) {
+                    buffer.setCursor(buffer.getCursor() - 1);
                     dirty = true;
-                } else if (event.key.keysym.sym == SDLK_RIGHT && cursor_pos < buffer.getTotalLength()) {
-                    cursor_pos++;
+                } else if (event.key.keysym.sym == SDLK_RIGHT && buffer.getCursor() < buffer.getTotalLength()) {
+                    buffer.setCursor(buffer.getCursor() + 1);
                     dirty = true;
                 } else if (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI) && event.key.keysym.sym == SDLK_z) {
                     buffer.undo();
@@ -73,10 +72,9 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 } else if (event.key.keysym.sym == SDLK_KP_SPACE || event.key.keysym.sym == SDLK_KP_ENTER) {
                     buffer.commit();
                     dirty = true;
-                } else if (event.key.keysym.sym == SDLK_BACKSPACE && cursor_pos > 0) {
+                } else if (event.key.keysym.sym == SDLK_BACKSPACE && buffer.getCursor() > 0) {
                     buffer.commit();
                     buffer.backspace(1);
-                    cursor_pos--;
                     dirty = true;
                 }
                 break;
@@ -86,21 +84,17 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 if (text == " " || text == "\n") {
                     buffer.commit();
                 }
-                buffer.insertText(text);
-                cursor_pos++;
+                buffer.insertText(text == " " ? "." : text);
                 dirty = true;
                 break;
             }
             if (dirty) {
                 dirty = false;
-                std::cout << "| Cursor Pos: " << cursor_pos << " | Text Length: " << buffer.getTotalLength() << " |\n\n";
+                std::cout << "| Cursor Pos: " << buffer.getCursor() << " | Text Length: " << buffer.getTotalLength() << " |\n\n";
                 std::string text = buffer.getText();
-                if (text.length() < cursor_pos) {
-                    cursor_pos = text.length();
-                }
-                std::cout << text.substr(0, cursor_pos);
+                std::cout << text.substr(0, buffer.getCursor());
                 std::cout << "|";
-                std::cout << text.substr(cursor_pos, text.length() - cursor_pos) << std::endl;
+                std::cout << text.substr(buffer.getCursor(), text.length() - buffer.getCursor()) << std::endl;
             }
         }
 
