@@ -16,6 +16,7 @@ set(CORE_SOURCES
     src/config/editor.cpp
     src/core/log.cpp
     src/buffer/table.cpp
+    src/buffer/buffer.cpp
 )
 
 if (APPLE)
@@ -28,6 +29,6 @@ add_executable(Blip src/app/main.cpp ${CORE_SOURCES})
 target_include_directories(Blip PRIVATE include)
 target_link_libraries(Blip PRIVATE SDL2::SDL2)
 
-add_executable(BlipTests src/tests/table.cpp ${CORE_SOURCES})
+add_executable(BlipTests src/tests/tests.cpp ${CORE_SOURCES})
 target_include_directories(BlipTests PRIVATE include)
 target_link_libraries(BlipTests PRIVATE SDL2::SDL2)

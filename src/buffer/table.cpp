@@ -5,127 +5,119 @@ namespace buffer {
 PieceTable::PieceTable(const std::string &initial_text) : original_buffer(initial_text) {
     if (!initial_text.empty()) {
         pieces.push_back({BufType::ORIGINAL, 0, initial_text.length()});
+        total_length = initial_text.length();
     }
-}
-
-const std::string PieceTable::getText() {
-    std::string result;
-
-    for (const auto &piece : pieces) {
-        if (piece.source == BufType::ORIGINAL) {
-            result += original_buffer.substr(piece.start, piece.length);
-        } else {
-            result += add_buffer.substr(piece.start, piece.length);
-        }
-    }
-
-    return result;
 }
 
 void PieceTable::insert(size_t index, const std::string &text) {
     if (text.empty())
         return;
 
-    size_t add_offset = add_buffer.length();
+    if (total_length < index) {
+        index = total_length;
+    }
+
+    size_t add_start = add_buffer.length();
     add_buffer += text;
 
-    size_t current_length = 0;
+    if (pieces.empty()) {
+        pieces.push_back(Piece{BufType::ADD, add_start, text.length()});
+        total_length += text.length();
+        return;
+    }
 
-    for (size_t i = 0; i < pieces.size(); ++i) {
-        if (current_length + pieces[i].length > index) {
-            size_t offset_in_piece = index - current_length;
-
-            if (offset_in_piece == 0) {
-                if (i > 0 && pieces[i - 1].source == BufType::ADD && pieces[i - 1].start + pieces[i - 1].length == add_offset) {
-
-                    pieces[i - 1].length += text.length();
-                    return;
-                }
-                Piece new_piece = {BufType::ADD, add_offset, text.length()};
+    size_t curr_length = 0;
+    for (size_t i = 0; i < pieces.size(); i++) {
+        if (curr_length + pieces[i].length >= index) {
+            size_t piece_index = index - curr_length;
+            if (piece_index == 0) {
+                Piece new_piece = {BufType::ADD, add_start, text.length()};
                 pieces.insert(pieces.begin() + i, new_piece);
+            } else if (pieces[i].source == BufType::ADD && pieces[i].start + pieces[i].length == add_start &&
+                       piece_index == pieces[i].length) {
+                pieces[i].length += text.length();
             } else {
-                Piece original_piece = pieces[i];
-                Piece left_half = {original_piece.source, original_piece.start, offset_in_piece};
-                Piece right_half = {original_piece.source, original_piece.start + offset_in_piece,
-                                    original_piece.length - offset_in_piece};
+                Piece right_half = {pieces[i].source, pieces[i].start + piece_index, pieces[i].length - piece_index};
+                Piece new_piece = {BufType::ADD, add_start, text.length()};
+                pieces[i] = {pieces[i].source, pieces[i].start, piece_index};
 
-                pieces[i] = left_half;
-                Piece new_piece = {BufType::ADD, add_offset, text.length()};
                 pieces.insert(pieces.begin() + i + 1, new_piece);
                 pieces.insert(pieces.begin() + i + 2, right_half);
             }
-            return;
+            total_length += text.length();
+            break;
         }
-        current_length += pieces[i].length;
-    }
-
-    if (!pieces.empty() && pieces.back().source == BufType::ADD && pieces.back().start + pieces.back().length == add_offset) {
-
-        pieces.back().length += text.length();
-    } else {
-        Piece new_piece = {BufType::ADD, add_offset, text.length()};
-        pieces.push_back(new_piece);
+        curr_length += pieces[i].length;
     }
 }
 
 void PieceTable::erase(size_t index, size_t length) {
-    if (length == 0)
+    if (length < 1)
         return;
 
-    size_t current_length = 0;
-    size_t start_piece_idx = pieces.size();
-    size_t start_offset = 0;
+    if (length > index) {
+        length = index;
+    }
 
-    for (size_t i = 0; i < pieces.size(); ++i) {
-        if (current_length + pieces[i].length > index) {
-            start_piece_idx = i;
-            start_offset = index - current_length;
+    if (index > total_length)
+        index = total_length;
+
+    size_t curr_length = 0;
+    int i = 0;
+
+    for (; i < pieces.size(); i++) {
+        if (curr_length + pieces[i].length >= index)
             break;
-        }
-        current_length += pieces[i].length;
+        curr_length += pieces[i].length;
     }
 
-    if (start_piece_idx == pieces.size())
-        return;
-
-    size_t chars_to_delete = length;
-    size_t i = start_piece_idx;
-
-    while (chars_to_delete > 0 && i < pieces.size()) {
-        Piece &p = pieces[i];
-        size_t available = p.length - start_offset;
-
-        if (chars_to_delete >= available) {
-            if (start_offset == 0) {
-                pieces.erase(pieces.begin() + i);
-            } else {
-                p.length = start_offset;
-                i++;
-            }
-            chars_to_delete -= available;
-            start_offset = 0;
+    while (i >= 0 && length > 0) {
+        size_t chars_available = index - curr_length;
+        size_t delete_amount = std::min(length, chars_available);
+        if (delete_amount == pieces[i].length) {
+            pieces.erase(pieces.begin() + i);
+        } else if (chars_available == pieces[i].length) {
+            pieces[i].length -= delete_amount;
+        } else if (chars_available == delete_amount) {
+            pieces[i].start += delete_amount;
+            pieces[i].length -= delete_amount;
         } else {
-            if (start_offset == 0) {
-                p.start += chars_to_delete;
-                p.length -= chars_to_delete;
-            } else {
-                Piece right_half = {p.source, p.start + start_offset + chars_to_delete,
-                                    p.length - start_offset - chars_to_delete};
-                p.length = start_offset;
-                pieces.insert(pieces.begin() + i + 1, right_half);
-            }
-            chars_to_delete = 0;
+            Piece right_part = {pieces[i].source, pieces[i].start + chars_available, pieces[i].length - chars_available};
+            pieces[i].length = chars_available - delete_amount;
+            pieces.insert(pieces.begin() + i + 1, right_part);
+        }
+        total_length -= delete_amount;
+        length -= delete_amount;
+        index -= delete_amount;
+        if (length == 0)
+            break;
+        if (--i >= 0) {
+            curr_length -= pieces[i].length;
         }
     }
 }
 
-const size_t PieceTable::length() {
-    size_t total = 0;
-    for (const auto &piece : pieces) {
-        total += piece.length;
+size_t PieceTable::getTotalLength() const { return total_length; }
+
+std::string PieceTable::getText() const {
+    std::string final_text;
+    final_text.reserve(total_length);
+    for (const auto &p : pieces) {
+        if (p.source == BufType::ORIGINAL) {
+            final_text += original_buffer.substr(p.start, p.length);
+        } else {
+            final_text += add_buffer.substr(p.start, p.length);
+        }
     }
-    return total;
+    return final_text;
 }
 
-const size_t PieceTable::getPieceCount() { return pieces.size(); }
+size_t PieceTable::getPieceCount() const { return pieces.size(); }
+
+PieceTable::State PieceTable::getState() const { return State{pieces, total_length}; }
+
+void PieceTable::restoreState(const State &state) {
+    this->pieces = state.pieces;
+    this->total_length = state.total_length;
+}
 }

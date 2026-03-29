@@ -1,4 +1,5 @@
-#include <blip/buffer/table.hpp>
+#pragma once
+#include <blip/buffer/buffer.hpp>
 #include <cassert>
 #include <iostream>
 
@@ -50,7 +51,7 @@ void test_erase_hole_punch() {
     std::cout << "Running test_erase_hole_punch...";
     buffer::PieceTable pt("Hello World");
     pt.erase(3, 5);
-    assert(pt.getText() == "Helrld");
+    assert(pt.getText() == "lo World");
     std::cout << "PASSED" << std::endl;
 }
 
@@ -59,8 +60,8 @@ void test_erase_spanning_pieces() {
     buffer::PieceTable pt("Hello");
     pt.insert(5, " Beautiful");
     pt.insert(15, " World");
-    pt.erase(4, 13);
-    assert(pt.getText() == "Hellorld");
+    pt.erase(17, 14);
+    assert(pt.getText() == "Helorld");
     std::cout << "PASSED" << std::endl;
 }
 
@@ -69,39 +70,68 @@ void test_erase_swallow_piece() {
     buffer::PieceTable pt("A");
     pt.insert(1, "B");
     pt.insert(2, "C");
-    pt.erase(1, 1);
+    pt.erase(2, 1);
     assert(pt.getText() == "AC");
     std::cout << "PASSED" << std::endl;
 }
 
 void test_consecutive_inserts() {
     std::cout << "Running test_consecutive_inserts...";
-    buffer::PieceTable pt;
+    buffer::PieceTable pt("World");
     pt.insert(0, "H");
     pt.insert(1, "e");
     pt.insert(2, "l");
     pt.insert(3, "l");
     pt.insert(4, "o");
+    pt.insert(5, " ");
 
-    assert(pt.getText() == "Hello");
-    assert(pt.getPieceCount() == 1);
+    assert(pt.getText() == "Hello World");
+    assert(pt.getPieceCount() == 2);
 
     std::cout << "PASSED" << std::endl;
 }
 
-int main() {
-    std::cout << "--- Starting Piece Table Tests ---\n";
+void test_undo_redo() {
+    std::cout << "Running test_undo_redo... ";
 
-    test_initialization();
-    test_empty_initialization();
-    test_insert_beginning();
-    test_insert_middle();
-    test_insert_end();
-    test_erase_hole_punch();
-    test_erase_spanning_pieces();
-    test_erase_swallow_piece();
-    test_consecutive_inserts();
+    // Empty Original Buffer
+    buffer::EditorBuffer buffer_empty;
+    buffer_empty.commit();
 
-    std::cout << "--- All Tests Passed! ---\n";
-    return 0;
+    buffer_empty.insertText("hello");
+    assert(buffer_empty.getText() == "hello");
+
+    buffer_empty.undo();
+    assert(buffer_empty.getText() == "");
+
+    buffer_empty.redo();
+    assert(buffer_empty.getText() == "hello");
+
+    // Filled Original Buffer
+    buffer::EditorBuffer buffer_org("Hello");
+    buffer_org.commit();
+
+    buffer_org.setCursor(5);
+    buffer_org.insertText(" World");
+    assert(buffer_org.getText() == "Hello World");
+
+    buffer_org.undo();
+    assert(buffer_org.getText() == "Hello");
+
+    buffer_org.redo();
+    assert(buffer_org.getText() == "Hello World");
+
+    buffer_org.commit();
+
+    buffer_org.setCursor(5);
+    buffer_org.insertText(" Beautiful");
+    assert(buffer_org.getText() == "Hello Beautiful World");
+
+    buffer_org.undo();
+    assert(buffer_org.getText() == "Hello World");
+
+    buffer_org.redo();
+    assert(buffer_org.getText() == "Hello Beautiful World");
+
+    std::cout << "PASSED" << std::endl;
 }

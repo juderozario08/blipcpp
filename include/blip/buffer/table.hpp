@@ -14,16 +14,27 @@ typedef struct {
 
 class PieceTable {
   public:
-    PieceTable(const std::string &initial_text = "");
-    const std::string getText();
+    typedef struct {
+        std::vector<Piece> pieces;
+        size_t total_length;
+    } State;
+
+    explicit PieceTable(const std::string &initial_text = "");
+
     void insert(size_t index, const std::string &text);
     void erase(size_t index, size_t length);
-    const size_t length();
-    const size_t getPieceCount();
+
+    std::string getText() const;
+    size_t getTotalLength() const;
+    size_t getPieceCount() const;
+
+    State getState() const;
+    void restoreState(const State &state);
 
   private:
     std::string original_buffer;
     std::string add_buffer;
     std::vector<Piece> pieces;
+    size_t total_length = 0;
 };
 }

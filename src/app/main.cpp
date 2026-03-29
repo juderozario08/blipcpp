@@ -1,3 +1,4 @@
+#include "blip/buffer/buffer.hpp"
 #include <SDL.h>
 #include <SDL_video.h>
 #include <blip/app/main.hpp>
@@ -37,12 +38,13 @@ void drawState(app::AppState &appState, config::EditorConfig &state) {
     config::setHoverBackgroundColor(appState, state);
 }
 
-void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::EditorConfig &state, buffer::PieceTable &pt) {
+void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::EditorConfig &state,
+               buffer::EditorBuffer &buffer) {
     auto running = true;
     SDL_Event event;
 
     size_t cursor_pos = 0;
-    bool dirty = false;
+    bool dirty = true;
 
     while (running) {
         while (SDL_PollEvent(&event) != 0) {
@@ -55,45 +57,50 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                     SDL_GetWindowSize(appState.window, &appState.window_width, &appState.window_height);
                 }
                 break;
-            case SDL_TEXTINPUT:
-                pt.insert(cursor_pos, event.text.text);
-                cursor_pos += strlen(event.text.text);
-                dirty = true;
-                break;
             case SDL_KEYDOWN:
-                if (event.key.keysym.sym == SDLK_BACKSPACE) {
-                    if (cursor_pos > 0) {
-                        pt.erase(cursor_pos - 1, 1);
-                        cursor_pos--;
-                        dirty = true;
-                    }
-                } else if (event.key.keysym.sym == SDLK_RETURN) {
-                    pt.insert(cursor_pos, "\n");
+                if (event.key.keysym.sym == SDLK_LEFT && cursor_pos > 0) {
+                    cursor_pos--;
+                    dirty = true;
+                } else if (event.key.keysym.sym == SDLK_RIGHT && cursor_pos < buffer.getTotalLength()) {
                     cursor_pos++;
                     dirty = true;
-                } else if (event.key.keysym.sym == SDLK_LEFT) {
-                    if (cursor_pos > 0) {
-                        cursor_pos--;
-                        dirty = true;
-                    }
-                } else if (event.key.keysym.sym == SDLK_RIGHT) {
-                    if (cursor_pos < pt.length()) {
-                        cursor_pos++;
-                        dirty = true;
-                    }
+                } else if (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI) && event.key.keysym.sym == SDLK_z) {
+                    buffer.undo();
+                    dirty = true;
+                } else if (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI) && event.key.keysym.sym == SDLK_r) {
+                    buffer.redo();
+                    dirty = true;
+                } else if (event.key.keysym.sym == SDLK_KP_SPACE || event.key.keysym.sym == SDLK_KP_ENTER) {
+                    buffer.commit();
+                    dirty = true;
+                } else if (event.key.keysym.sym == SDLK_BACKSPACE && cursor_pos > 0) {
+                    buffer.commit();
+                    buffer.backspace(1);
+                    cursor_pos--;
+                    dirty = true;
                 }
                 break;
+            case SDL_TEXTINPUT:
+                std::string text = event.text.text;
+                std::cout << text << std::endl;
+                if (text == " " || text == "\n") {
+                    buffer.commit();
+                }
+                buffer.insertText(text);
+                cursor_pos++;
+                dirty = true;
+                break;
             }
-
             if (dirty) {
-                std::cout << "\n--- Blip State ---\n";
-                std::cout << "Length: " << pt.length() << " | Cursor: " << cursor_pos << "\n";
-
-                std::string current_text = pt.getText();
-                current_text.insert(cursor_pos, "|");
-                std::cout << current_text << std::endl;
-
                 dirty = false;
+                std::cout << "| Cursor Pos: " << cursor_pos << " | Text Length: " << buffer.getTotalLength() << " |\n\n";
+                std::string text = buffer.getText();
+                if (text.length() < cursor_pos) {
+                    cursor_pos = text.length();
+                }
+                std::cout << text.substr(0, cursor_pos);
+                std::cout << "|";
+                std::cout << text.substr(cursor_pos, text.length() - cursor_pos) << std::endl;
             }
         }
 
@@ -139,10 +146,10 @@ void run() {
         // core::printState(state);// NOTE: THIS FUNCTION IS FOR DEBUGGING ONLY
     });
 
-    // TODO: Should be the ORIGINAL FILE TEXT HERE. IMPLEMENT LATER.
-    buffer::PieceTable pt("Hello World");
+    buffer::EditorBuffer buffer;
+    buffer.commit();
 
-    eventLoop(appState, watcher, state, pt);
+    eventLoop(appState, watcher, state, buffer);
 
     SDL_DestroyRenderer(appState.renderer);
     SDL_DestroyWindow(appState.window);
