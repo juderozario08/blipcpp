@@ -3,7 +3,7 @@
 
 namespace buffer {
 
-EditorBuffer::EditorBuffer(const std::string &initial_text) : table(initial_text), cursor_pos(0) {}
+EditorBuffer::EditorBuffer(const std::string &initial_text) : table(initial_text), cursor_pos(0) { commit(); }
 
 void EditorBuffer::commit() {
     if (!redo_stack.empty()) {

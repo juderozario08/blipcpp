@@ -84,7 +84,7 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 if (text == " " || text == "\n") {
                     buffer.commit();
                 }
-                buffer.insertText(text == " " ? "." : text);
+                buffer.insertText(text);
                 dirty = true;
                 break;
             }
@@ -141,7 +141,6 @@ void run() {
     });
 
     buffer::EditorBuffer buffer;
-    buffer.commit();
 
     eventLoop(appState, watcher, state, buffer);
 

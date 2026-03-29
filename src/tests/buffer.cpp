@@ -96,7 +96,6 @@ void test_undo_redo() {
 
     // Empty Original Buffer
     buffer::EditorBuffer buffer_empty;
-    buffer_empty.commit();
 
     buffer_empty.insertText("hello");
     assert(buffer_empty.getText() == "hello");
@@ -109,7 +108,6 @@ void test_undo_redo() {
 
     // Filled Original Buffer
     buffer::EditorBuffer buffer_org("Hello");
-    buffer_org.commit();
 
     buffer_org.setCursor(5);
     buffer_org.insertText(" World");
