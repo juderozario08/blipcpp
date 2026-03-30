@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace buffer {
 
@@ -27,6 +28,7 @@ class PieceTable {
     std::string getText() const;
     size_t getTotalLength() const;
     size_t getPieceCount() const;
+    std::optional<char> getCharacterFromCursor(size_t index, int offset = 0) const;
 
     State getState() const;
     void restoreState(const State &state);

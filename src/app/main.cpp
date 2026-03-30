@@ -8,6 +8,12 @@
 #include <blip/platform/watcher.hpp>
 #include <iostream>
 
+#ifdef _DEV_
+#define DEV(...) __VA_ARGS__
+#else
+#define DEV(...)
+#endif
+
 void drawBackground(app::AppState &appState, config::EditorConfig &state) {
     auto c = state.theme.background;
     SDL_SetRenderDrawColor(appState.renderer, c.r, c.g, c.b, c.a);
@@ -69,7 +75,8 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 } else if (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI) && event.key.keysym.sym == SDLK_r) {
                     buffer.redo();
                     dirty = true;
-                } else if (event.key.keysym.sym == SDLK_KP_SPACE || event.key.keysym.sym == SDLK_KP_ENTER) {
+                } else if (event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_RETURN ||
+                           event.key.keysym.sym == SDLK_KP_ENTER) {
                     buffer.commit();
                     dirty = true;
                 } else if (event.key.keysym.sym == SDLK_BACKSPACE && buffer.getCursor() > 0) {
@@ -134,10 +141,10 @@ void run() {
     // TODO: Calculate filepath using system file lookup
     std::string filepath = "config.ini";
     config::loadConfig(filepath, state);
-    // core::printState(state);// NOTE: THIS FUNCTION IS FOR DEBUGGING ONLY
+    DEV(core::printState(state));
     watcher.start(filepath, [&state, filepath]() {
         config::loadConfig(filepath, state);
-        // core::printState(state);// NOTE: THIS FUNCTION IS FOR DEBUGGING ONLY
+        DEV(core::printState(state));
     });
 
     buffer::EditorBuffer buffer;

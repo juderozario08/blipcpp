@@ -120,4 +120,39 @@ void PieceTable::restoreState(const State &state) {
     this->pieces = state.pieces;
     this->total_length = state.total_length;
 }
+
+std::optional<char> PieceTable::getCharacterFromCursor(size_t index, int offset) const {
+    if (total_length == 0 || pieces.empty())
+        return std::nullopt;
+
+    size_t target_index;
+    if (offset < 0) {
+        size_t left = static_cast<size_t>(-offset);
+        if (left > index) [[unlikely]] {
+            target_index = 0;
+        } else {
+            target_index = index - left;
+        }
+    } else {
+        target_index = index + offset;
+    }
+    if (target_index >= total_length) {
+        target_index = total_length - 1;
+    }
+
+    size_t curr_length = 0;
+    for (const auto &p : pieces) {
+        if (curr_length + p.length > target_index) {
+            size_t piece_offset = target_index - curr_length;
+            if (p.source == BufType::ORIGINAL) {
+                return original_buffer[p.start + piece_offset];
+            } else {
+                return add_buffer[p.start + piece_offset];
+            }
+            break;
+        }
+        curr_length += p.length;
+    }
+    return std::nullopt;
+}
 }

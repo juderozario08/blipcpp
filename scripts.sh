@@ -11,6 +11,11 @@ if [ "$1" == "test" ]; then
     echo -e "\n--- Running Tests ---"
     ./build/BlipTests
 else
-    echo -e "\n--- Starting Blip ---"
-    ./build/Blip
+    if [ "$1" == "dev" ]; then
+        echo -e "\n--- Running Dev Environment ---"
+        ./build/BlipDev
+    else
+        echo -e "\n--- Starting Blip ---"
+        ./build/Blip
+    fi
 fi

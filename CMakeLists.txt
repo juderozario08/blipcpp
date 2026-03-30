@@ -3,7 +3,7 @@ project(Blip)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(APPLE)
@@ -28,6 +28,11 @@ endif()
 add_executable(Blip src/app/main.cpp ${CORE_SOURCES})
 target_include_directories(Blip PRIVATE include)
 target_link_libraries(Blip PRIVATE SDL2::SDL2)
+
+add_executable(BlipDev src/app/main.cpp ${CORE_SOURCES})
+target_include_directories(BlipDev PRIVATE include)
+target_link_libraries(BlipDev PRIVATE SDL2::SDL2)
+target_compile_definitions(BlipDev PRIVATE _DEV_)
 
 add_executable(BlipTests src/tests/tests.cpp ${CORE_SOURCES})
 target_include_directories(BlipTests PRIVATE include)

@@ -1,6 +1,7 @@
 #pragma once
 #include <blip/buffer/table.hpp>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace buffer {
@@ -25,10 +26,17 @@ class EditorBuffer {
     size_t getCursor() const;
     size_t getTotalLength() const;
     void setCursor(size_t new_pos);
+    void moveLeft();
+    void moveRight();
+    void moveUp();
+    void moveDown();
+    std::pair<size_t, size_t> getCursorPosition2D() const;
 
   private:
     PieceTable table;
     size_t cursor_pos;
+    std::vector<size_t> line_starts;
+    void updateLineStarts(const std::string &text);
 
     std::vector<EditRecord> undo_stack;
     std::vector<EditRecord> redo_stack;

@@ -14,6 +14,7 @@ int main() {
     test_erase_swallow_piece();
     test_consecutive_inserts();
     test_undo_redo();
+    test_get_character_from_cursor();
 
     std::cout << "--- All Tests Passed! ---\n";
     return 0;

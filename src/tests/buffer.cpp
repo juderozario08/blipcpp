@@ -133,3 +133,29 @@ void test_undo_redo() {
 
     std::cout << "PASSED" << std::endl;
 }
+
+void test_get_character_from_cursor() {
+    std::cout << "Runnning test_get_character_from_cursor...";
+
+    buffer::PieceTable pt;
+
+    std::optional<char> t;
+    t = pt.getCharacterFromCursor(0, 5);
+    assert(t == std::nullopt);
+
+    pt.insert(0, "Hello World");
+
+    t = pt.getCharacterFromCursor(0, 5);
+    assert(t == ' ');
+
+    t = pt.getCharacterFromCursor(5, -3);
+    assert(t == 'l');
+
+    t = pt.getCharacterFromCursor(5, 0);
+    assert(t == ' ');
+
+    t = pt.getCharacterFromCursor(5, -1);
+    assert(t == 'o');
+
+    std::cout << "PASSED" << std::endl;
+}
