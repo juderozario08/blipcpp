@@ -1,7 +1,7 @@
-#include "blip/buffer/buffer.hpp"
 #include <SDL.h>
 #include <SDL_video.h>
 #include <blip/app/main.hpp>
+#include <blip/buffer/buffer.hpp>
 #include <blip/buffer/table.hpp>
 #include <blip/config/editor.hpp>
 #include <blip/core/log.hpp>
@@ -63,11 +63,17 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 }
                 break;
             case SDL_KEYDOWN:
-                if (event.key.keysym.sym == SDLK_LEFT && buffer.getCursor() > 0) {
-                    buffer.setCursor(buffer.getCursor() - 1);
+                if (event.key.keysym.sym == SDLK_LEFT) {
+                    buffer.moveLeft();
                     dirty = true;
-                } else if (event.key.keysym.sym == SDLK_RIGHT && buffer.getCursor() < buffer.getTotalLength()) {
-                    buffer.setCursor(buffer.getCursor() + 1);
+                } else if (event.key.keysym.sym == SDLK_RIGHT) {
+                    buffer.moveRight();
+                    dirty = true;
+                } else if (event.key.keysym.sym == SDLK_UP) {
+                    buffer.moveUp();
+                    dirty = true;
+                } else if (event.key.keysym.sym == SDLK_DOWN) {
+                    buffer.moveDown();
                     dirty = true;
                 } else if (event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI) && event.key.keysym.sym == SDLK_z) {
                     buffer.undo();
@@ -78,6 +84,9 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
                 } else if (event.key.keysym.sym == SDLK_SPACE || event.key.keysym.sym == SDLK_RETURN ||
                            event.key.keysym.sym == SDLK_KP_ENTER) {
                     buffer.commit();
+                    if (event.key.keysym.sym == SDLK_RETURN) {
+                        buffer.insertText("\n");
+                    }
                     dirty = true;
                 } else if (event.key.keysym.sym == SDLK_BACKSPACE && buffer.getCursor() > 0) {
                     buffer.commit();
@@ -88,9 +97,6 @@ void eventLoop(app::AppState &appState, config::ConfigWatcher &watcher, config::
             case SDL_TEXTINPUT:
                 std::string text = event.text.text;
                 std::cout << text << std::endl;
-                if (text == " " || text == "\n") {
-                    buffer.commit();
-                }
                 buffer.insertText(text);
                 dirty = true;
                 break;
@@ -149,7 +155,9 @@ void run() {
 
     buffer::EditorBuffer buffer;
 
+    SDL_StartTextInput();
     eventLoop(appState, watcher, state, buffer);
+    SDL_StopTextInput();
 
     SDL_DestroyRenderer(appState.renderer);
     SDL_DestroyWindow(appState.window);

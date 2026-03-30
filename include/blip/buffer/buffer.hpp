@@ -1,4 +1,5 @@
 #pragma once
+#include <SDL_stdinc.h>
 #include <blip/buffer/table.hpp>
 #include <string>
 #include <utility>
@@ -9,6 +10,7 @@ namespace buffer {
 typedef struct {
     PieceTable::State table_state;
     size_t cursor_position;
+    std::vector<size_t> line_starts;
 } EditRecord;
 
 class EditorBuffer {
@@ -25,17 +27,19 @@ class EditorBuffer {
     std::string getText() const;
     size_t getCursor() const;
     size_t getTotalLength() const;
-    void setCursor(size_t new_pos);
+    void setCursor(Sint64 new_pos);
     void moveLeft();
     void moveRight();
     void moveUp();
     void moveDown();
     std::pair<size_t, size_t> getCursorPosition2D() const;
+    size_t getCursorPositionFrom2D(size_t row, size_t col) const;
 
   private:
     PieceTable table;
     size_t cursor_pos;
     std::vector<size_t> line_starts;
+    void recomputeAllLines();
     void updateLineStarts(const std::string &text);
 
     std::vector<EditRecord> undo_stack;
