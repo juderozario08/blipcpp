@@ -12,6 +12,7 @@ endif()
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
+find_package(Fontconfig REQUIRED)
 
 set(CORE_SOURCES
     src/config/editor.cpp
@@ -33,15 +34,21 @@ elseif (UNIX AND NOT APPLE)
     list(APPEND CORE_SOURCES src/platform/linux/system.cpp)
 endif()
 
-add_executable(Blip src/app/main.cpp ${CORE_SOURCES})
-target_include_directories(Blip PRIVATE include)
-target_link_libraries(Blip PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+# Helper function to avoid repeating the same linking logic
+function(add_blip_executable name)
+    add_executable(${name} src/app/main.cpp ${CORE_SOURCES})
+    target_include_directories(${name} PRIVATE include)
+    target_link_libraries(${name}
+        PRIVATE
+            SDL2::SDL2
+            SDL2_ttf::SDL2_ttf
+            Fontconfig::Fontconfig
+    )
+endfunction()
 
-add_executable(BlipDev src/app/main.cpp ${CORE_SOURCES})
-target_include_directories(BlipDev PRIVATE include)
-target_link_libraries(BlipDev PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+add_blip_executable(Blip)
+
+add_blip_executable(BlipDev)
 target_compile_definitions(BlipDev PRIVATE _DEV_)
 
-add_executable(BlipTests src/tests/tests.cpp ${CORE_SOURCES})
-target_include_directories(BlipTests PRIVATE include)
-target_link_libraries(BlipTests PRIVATE SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+add_blip_executable(BlipTests)

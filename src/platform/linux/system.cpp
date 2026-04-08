@@ -19,37 +19,63 @@ void readFile(const char *fname, std::string &lines) {
     }
 }
 
-// WRITE A FUNCTION TO WALK THE FILE TREES TO FIND ALL THE NECESSARY FILES
 std::string getTTFPath(const std::string &family, const std::string &style) {
-    if (!FcInit()) {
-        std::cerr << "Could not init fontconfig" << std::endl;
+    static bool initialized = false;
+    if (!initialized) {
+        if (!FcInit()) {
+            std::cerr << "Could not init fontconfig\n";
+            return "";
+        }
+        initialized = true;
     }
 
-    FcPattern *pat = FcNameParse((const FcChar8 *)(family + ":" + style).c_str());
-    FcConfigSubstitute(NULL, pat, FcMatchPattern);
+    std::string patternStr = family;
+    if (!style.empty())
+        patternStr += ":" + style;
+
+    FcPattern *pat = FcNameParse((const FcChar8 *)patternStr.c_str());
+
+    // Add fallback monospace family
+    FcPatternAddString(pat, FC_FAMILY, (const FcChar8 *)"monospace");
+
+    FcConfigSubstitute(nullptr, pat, FcMatchPattern);
     FcDefaultSubstitute(pat);
 
     FcResult result;
-    FcPattern *font = FcFontMatch(NULL, pat, &result);
+    FcPattern *font = FcFontMatch(nullptr, pat, &result);
+
+    std::string path;
 
     if (font) {
-        FcChar8 *file = NULL;
+        FcChar8 *file = nullptr;
         if (FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch) {
-            std::cout << "Font File: " << file << std::endl;
-            return std::string((const char *)file);
+            path = reinterpret_cast<char *>(file);
         } else {
-            // TODO: Display this error and default to a font
-            std::cerr << "Could not get FC_FILE" << std::endl;
+            std::cerr << "Could not get FC_FILE\n";
         }
         FcPatternDestroy(font);
     } else {
-        // TODO: Display this error and default to a font
-        std::cerr << "No match found" << std::endl;
-        return std::string("");
+        std::cerr << "No match found — this should never happen with fallback\n";
     }
 
     FcPatternDestroy(pat);
-    FcFini();
-    return std::string("");
+
+    if (path.empty()) {
+        FcPattern *fallbackPat = FcNameParse((const FcChar8 *)"monospace");
+        FcConfigSubstitute(nullptr, fallbackPat, FcMatchPattern);
+        FcDefaultSubstitute(fallbackPat);
+
+        FcPattern *fallbackFont = FcFontMatch(nullptr, fallbackPat, &result);
+        if (fallbackFont) {
+            FcChar8 *file = nullptr;
+            if (FcPatternGetString(fallbackFont, FC_FILE, 0, &file) == FcResultMatch) {
+                path = reinterpret_cast<char *>(file);
+            }
+            FcPatternDestroy(fallbackFont);
+        }
+        FcPatternDestroy(fallbackPat);
+    }
+
+    return path;
 }
 }
