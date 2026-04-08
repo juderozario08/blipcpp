@@ -72,6 +72,20 @@ size_t EditorBuffer::getCursor() const { return cursor_pos; }
 
 size_t EditorBuffer::getTotalLength() const { return table.getTotalLength(); }
 
+void EditorBuffer::setCursorToBeginningColumn() {
+    auto [row, _] = getCursorPosition2D();
+    setCursor(line_starts[row]);
+}
+
+void EditorBuffer::setCursorToEndingColumn() {
+    auto [row, _] = getCursorPosition2D();
+    if (row == line_starts.size() - 1) {
+        setCursor(table.getTotalLength());
+    } else {
+        setCursor(line_starts[row + 1] - 1);
+    }
+}
+
 void EditorBuffer::setCursor(Sint64 new_pos) {
     if (new_pos < 0) {
         cursor_pos = 0;
@@ -88,7 +102,9 @@ void EditorBuffer::insertText(const std::string &text) {
     }
     updateLineStarts(text);
     table.insert(cursor_pos, text);
-    cursor_pos += text.length();
+    setCursor(cursor_pos + text.length());
+    auto [_, col] = getCursorPosition2D();
+    desired_col = col;
 }
 
 void EditorBuffer::backspace(size_t amount) {
@@ -101,25 +117,37 @@ void EditorBuffer::backspace(size_t amount) {
     table.erase(cursor_pos, amount);
     setCursor(cursor_pos - amount);
     recomputeAllLines();
+    auto [_, col] = getCursorPosition2D();
+    desired_col = col;
 }
 
-void EditorBuffer::moveLeft() { setCursor(cursor_pos - 1); }
-void EditorBuffer::moveRight() { setCursor(cursor_pos + 1); }
+void EditorBuffer::moveLeft() {
+    int current_pos = cursor_pos;
+    setCursor(cursor_pos - 1);
+    if (cursor_pos < current_pos) {
+        desired_col--;
+    }
+}
+void EditorBuffer::moveRight() {
+    int current_pos = cursor_pos;
+    setCursor(cursor_pos + 1);
+    if (cursor_pos > current_pos) {
+        desired_col++;
+    }
+}
 void EditorBuffer::moveUp() {
-    auto [row, col] = getCursorPosition2D();
+    auto [row, _] = getCursorPosition2D();
     if (row == 0) {
-        setCursor(0);
         return;
     }
-    setCursor(getCursorPositionFrom2D(row - 1, col));
+    setCursor(getCursorPositionFrom2D(row - 1, desired_col));
 }
 void EditorBuffer::moveDown() {
-    auto [row, col] = getCursorPosition2D();
+    auto [row, _] = getCursorPosition2D();
     if (row == line_starts.size() - 1) {
-        setCursor(table.getTotalLength());
         return;
     }
-    setCursor(getCursorPositionFrom2D(row + 1, col));
+    setCursor(getCursorPositionFrom2D(row + 1, desired_col));
 }
 
 size_t EditorBuffer::getCursorPositionFrom2D(size_t row, size_t col) const {

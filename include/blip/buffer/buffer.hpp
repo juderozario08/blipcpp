@@ -34,11 +34,14 @@ class EditorBuffer {
     void moveDown();
     std::pair<size_t, size_t> getCursorPosition2D() const;
     size_t getCursorPositionFrom2D(size_t row, size_t col) const;
+    void setCursorToBeginningColumn();
+    void setCursorToEndingColumn();
 
   private:
     PieceTable table;
     size_t cursor_pos;
     std::vector<size_t> line_starts;
+    size_t desired_col = 0;
     void recomputeAllLines();
     void updateLineStarts(const std::string &text);
 

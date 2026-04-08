@@ -200,50 +200,35 @@ void setDefaultConifg(EditorConfig &state) {
 void handleThemeConfigUpdates(std::string key, std::string value, EditorConfig &state) {
     if (key == constants::theme::BACKGROUND) {
         handleColorUpdate(value, &state.theme.background, defaults::theme::BACKGROUND);
-    }
-    if (key == constants::theme::FOREGROUND) {
+    } else if (key == constants::theme::FOREGROUND) {
         handleColorUpdate(value, &state.theme.foreground, defaults::theme::FOREGROUND);
-    }
-    if (key == constants::theme::CURSOR) {
+    } else if (key == constants::theme::CURSOR) {
         handleColorUpdate(value, &state.theme.cursor, defaults::theme::CURSOR);
-    }
-    if (key == constants::theme::SELECTION) {
+    } else if (key == constants::theme::SELECTION) {
         handleColorUpdate(value, &state.theme.selection, defaults::theme::SELECTION);
-    }
-    if (key == constants::theme::LINE_NUMBER) {
+    } else if (key == constants::theme::LINE_NUMBER) {
         handleColorUpdate(value, &state.theme.line_number, defaults::theme::LINE_NUMBER);
-    }
-    if (key == constants::theme::WHITESPACE) {
+    } else if (key == constants::theme::WHITESPACE) {
         handleColorUpdate(value, &state.theme.whitespace, defaults::theme::WHITESPACE);
-    }
-    if (key == constants::theme::DIFF_ADD) {
+    } else if (key == constants::theme::DIFF_ADD) {
         handleColorUpdate(value, &state.theme.diff_add, defaults::theme::DIFF_ADD);
-    }
-    if (key == constants::theme::DIFF_REMOVE) {
+    } else if (key == constants::theme::DIFF_REMOVE) {
         handleColorUpdate(value, &state.theme.diff_remove, defaults::theme::DIFF_REMOVE);
-    }
-    if (key == constants::theme::DIFF_CHANGE) {
+    } else if (key == constants::theme::DIFF_CHANGE) {
         handleColorUpdate(value, &state.theme.diff_change, defaults::theme::DIFF_CHANGE);
-    }
-    if (key == constants::theme::DIAGNOSTIC_INFO) {
+    } else if (key == constants::theme::DIAGNOSTIC_INFO) {
         handleColorUpdate(value, &state.theme.diagnostic_info, defaults::theme::DIAGNOSTIC_INFO);
-    }
-    if (key == constants::theme::DIAGNOSTIC_ERROR) {
+    } else if (key == constants::theme::DIAGNOSTIC_ERROR) {
         handleColorUpdate(value, &state.theme.diagnostic_error, defaults::theme::DIAGNOSTIC_ERROR);
-    }
-    if (key == constants::theme::DIAGNOSTIC_WARNING) {
+    } else if (key == constants::theme::DIAGNOSTIC_WARNING) {
         handleColorUpdate(value, &state.theme.diagnostic_warning, defaults::theme::DIAGNOSTIC_WARNING);
-    }
-    if (key == constants::theme::POPUP_BACKGROUND) {
+    } else if (key == constants::theme::POPUP_BACKGROUND) {
         handleColorUpdate(value, &state.theme.popup_background, defaults::theme::POPUP_BACKGROUND);
-    }
-    if (key == constants::theme::TOOLTIP_BORDER) {
+    } else if (key == constants::theme::TOOLTIP_BORDER) {
         handleColorUpdate(value, &state.theme.tooltip_border, defaults::theme::TOOLTIP_BORDER);
-    }
-    if (key == constants::theme::COMPLETION_BACKGROUND) {
+    } else if (key == constants::theme::COMPLETION_BACKGROUND) {
         handleColorUpdate(value, &state.theme.completion_background, defaults::theme::COMPLETION_BACKGROUND);
-    }
-    if (key == constants::theme::HOVER_TAB_BACKGROUND) {
+    } else if (key == constants::theme::HOVER_TAB_BACKGROUND) {
         handleColorUpdate(value, &state.theme.hover_tab_background, defaults::theme::HOVER_TAB_BACKGROUND);
     }
 }
@@ -252,19 +237,17 @@ void handleFontConfigUpdates(std::string key, std::string value, EditorConfig &s
     if (key == constants::font::FAMILY) {
         // TODO: MAKE SURE TO CHECK IF THE "VALUE = FONT" FIRST EXISTS OR NOT
         state.font.family = value.length() > 0 ? value : defaults::font::FAMILY;
-    }
-    if (key == constants::font::COLOR) {
+    } else if (key == constants::font::STYLE) {
+        state.font.style = value.length() > 0 ? value : defaults::font::STYLE;
+    } else if (key == constants::font::COLOR) {
         handleColorUpdate(value, &state.font.color, defaults::font::COLOR);
-    }
-    if (key == constants::font::LIGATURES) {
+    } else if (key == constants::font::LIGATURES) {
         handleBoolUpdate(value, &state.font.ligatures, defaults::font::LIGATURES);
-    }
-    if (key == constants::font::SIZE) {
+    } else if (key == constants::font::SIZE) {
         if (!parseNum(value, state.font.size)) {
             state.font.size = defaults::font::SIZE;
         }
-    }
-    if (key == constants::font::LINE_HEIGHT) {
+    } else if (key == constants::font::LINE_HEIGHT) {
         try {
             auto height = static_cast<float>(std::stof(value));
             state.font.line_height = height <= 0.0 ? defaults::font::LINE_HEIGHT : height;
@@ -293,8 +276,7 @@ void handleUIConfigUpdates(std::string key, std::string value, EditorConfig &sta
                 state.ui.cursor_style = defaults::ui::CURSOR_STYLE;
             }
         }
-    }
-    if (key == constants::ui::LINE_NUMBERS) {
+    } else if (key == constants::ui::LINE_NUMBERS) {
         int style;
         if (!parseNum(value, style)) {
             state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
@@ -315,23 +297,17 @@ void handleUIConfigUpdates(std::string key, std::string value, EditorConfig &sta
                 state.ui.line_numbers = defaults::ui::LINE_NUMBERS;
             }
         }
-    }
-    if (key == constants::ui::STATUS_BAR_VISIBLE) {
+    } else if (key == constants::ui::STATUS_BAR_VISIBLE) {
         handleBoolUpdate(value, &state.ui.status_bar_visible, defaults::ui::STATUS_BAR_VISIBLE);
-    }
-    if (key == constants::ui::TAB_BAR_VISIBLE) {
+    } else if (key == constants::ui::TAB_BAR_VISIBLE) {
         handleBoolUpdate(value, &state.ui.tab_bar_visible, defaults::ui::TAB_BAR_VISIBLE);
-    }
-    if (key == constants::ui::HIGHLIGHT_CURRENT_LINE) {
+    } else if (key == constants::ui::HIGHLIGHT_CURRENT_LINE) {
         handleBoolUpdate(value, &state.ui.highlight_current_line, defaults::ui::HIGHLIGHT_CURRENT_LINE);
-    }
-    if (key == constants::ui::SHOW_WHITESPACE) {
+    } else if (key == constants::ui::SHOW_WHITESPACE) {
         handleBoolUpdate(value, &state.ui.show_whitespace, defaults::ui::SHOW_WHITESPACE);
-    }
-    if (key == constants::ui::SHOW_INDENT_GUIDES) {
+    } else if (key == constants::ui::SHOW_INDENT_GUIDES) {
         handleBoolUpdate(value, &state.ui.show_indent_guides, defaults::ui::SHOW_INDENT_GUIDES);
-    }
-    if (key == constants::ui::UI_SCALE) {
+    } else if (key == constants::ui::UI_SCALE) {
         int scale;
         if (!parseNum(value, scale)) {
             state.ui.ui_scale = defaults::ui::UI_SCALE;
@@ -349,8 +325,7 @@ void handlePreferenceConfigUpdates(std::string key, std::string value, EditorCon
         } else {
             state.preference.tab_width = defaults::preference::TAB_WIDTH;
         }
-    }
-    if (key == constants::preference::AUTO_FORMAT) {
+    } else if (key == constants::preference::AUTO_FORMAT) {
         int format;
         if (!parseNum(value, format)) {
             state.preference.auto_format = defaults::preference::AUTO_FORMAT;
@@ -370,24 +345,18 @@ void handlePreferenceConfigUpdates(std::string key, std::string value, EditorCon
                 state.preference.auto_format = defaults::preference::AUTO_FORMAT;
             }
         }
-    }
-    if (key == constants::preference::BRACKET_MATCHING) {
+    } else if (key == constants::preference::BRACKET_MATCHING) {
         handleBoolUpdate(value, &state.preference.bracket_matching, defaults::preference::BRACKET_MATCHING);
-    }
-    if (key == constants::preference::AUTO_CLOSE_BRACKETS) {
+    } else if (key == constants::preference::AUTO_CLOSE_BRACKETS) {
         handleBoolUpdate(value, &state.preference.auto_close_brackets, defaults::preference::AUTO_CLOSE_BRACKETS);
-    }
-    if (key == constants::preference::WORD_WRAP) {
+    } else if (key == constants::preference::WORD_WRAP) {
         handleBoolUpdate(value, &state.preference.word_wrap, defaults::preference::WORD_WRAP);
-    }
-    if (key == constants::preference::TRIM_TRAILING_WHITESPACE_ON_SAVE) {
+    } else if (key == constants::preference::TRIM_TRAILING_WHITESPACE_ON_SAVE) {
         handleBoolUpdate(value, &state.preference.trim_trailing_whitespace_on_save,
                          defaults::preference::TRIM_TRAILING_WHITESPACE_ON_SAVE);
-    }
-    if (key == constants::preference::HIGHLIGHT_ACTIVE_SCOPE) {
+    } else if (key == constants::preference::HIGHLIGHT_ACTIVE_SCOPE) {
         handleBoolUpdate(value, &state.preference.highlight_active_scope, defaults::preference::HIGHLIGHT_ACTIVE_SCOPE);
-    }
-    if (key == constants::preference::AUTO_INDENT) {
+    } else if (key == constants::preference::AUTO_INDENT) {
         handleBoolUpdate(value, &state.preference.auto_indent, defaults::preference::AUTO_INDENT);
     }
 }
@@ -395,29 +364,21 @@ void handleInputConfigUpdates(std::string key, std::string value, EditorConfig &
     // Input Config Update
     if (key == constants::input::SHORTCUT_SAVE) {
         handleShortcutString(value, state.input.shortcut_save, defaults::input::SHORTCUT_SAVE);
-    }
-    if (key == constants::input::SHORTCUT_SEARCH) {
+    } else if (key == constants::input::SHORTCUT_SEARCH) {
         handleShortcutString(value, state.input.shortcut_search, defaults::input::SHORTCUT_SEARCH);
-    }
-    if (key == constants::input::SHORTCUT_SPLIT_VERTICAL) {
+    } else if (key == constants::input::SHORTCUT_SPLIT_VERTICAL) {
         handleShortcutString(value, state.input.shortcut_split_vertical, defaults::input::SHORTCUT_SPLIT_VERTICAL);
-    }
-    if (key == constants::input::SHORTCUT_SPLIT_HORIZONTAL) {
+    } else if (key == constants::input::SHORTCUT_SPLIT_HORIZONTAL) {
         handleShortcutString(value, state.input.shortcut_split_horizontal, defaults::input::SHORTCUT_SPLIT_HORIZONTAL);
-    }
-    if (key == constants::input::VIM_MODE) {
+    } else if (key == constants::input::VIM_MODE) {
         handleBoolUpdate(value, &state.input.vim_mode, defaults::input::VIM_MODE);
-    }
-    if (key == constants::input::AUTOCOMPLETE) {
+    } else if (key == constants::input::AUTOCOMPLETE) {
         handleBoolUpdate(value, &state.input.autocomplete, defaults::input::AUTOCOMPLETE);
-    }
-    if (key == constants::input::CLIPBOARD_INTEGRATION) {
+    } else if (key == constants::input::CLIPBOARD_INTEGRATION) {
         handleBoolUpdate(value, &state.input.clipboard_integration, defaults::input::CLIPBOARD_INTEGRATION);
-    }
-    if (key == constants::input::MOUSE_SELECTION) {
+    } else if (key == constants::input::MOUSE_SELECTION) {
         handleBoolUpdate(value, &state.input.mouse_selection, defaults::input::MOUSE_SELECTION);
-    }
-    if (key == constants::input::DRAG_AND_DROP) {
+    } else if (key == constants::input::DRAG_AND_DROP) {
         handleBoolUpdate(value, &state.input.drag_and_drop, defaults::input::DRAG_AND_DROP);
     }
 }
@@ -425,20 +386,15 @@ void handlePluginsConfigUpdates(std::string key, std::string value, EditorConfig
     // Plugins Config Updates
     if (key == constants::plugins::LSP) {
         handleBoolUpdate(value, &state.plugins.lsp, defaults::plugins::LSP);
-    }
-    if (key == constants::plugins::SNIPPETS) {
+    } else if (key == constants::plugins::SNIPPETS) {
         handleBoolUpdate(value, &state.plugins.snippets, defaults::plugins::SNIPPETS);
-    }
-    if (key == constants::plugins::GIT) {
+    } else if (key == constants::plugins::GIT) {
         handleBoolUpdate(value, &state.plugins.git, defaults::plugins::GIT);
-    }
-    if (key == constants::plugins::LINTER) {
+    } else if (key == constants::plugins::LINTER) {
         handleBoolUpdate(value, &state.plugins.linter, defaults::plugins::LINTER);
-    }
-    if (key == constants::plugins::FILE_EXPLORER) {
+    } else if (key == constants::plugins::FILE_EXPLORER) {
         handleBoolUpdate(value, &state.plugins.file_explorer, defaults::plugins::FILE_EXPLORER);
-    }
-    if (key == constants::plugins::HOT_RELOAD) {
+    } else if (key == constants::plugins::HOT_RELOAD) {
         handleBoolUpdate(value, &state.plugins.hot_reload, defaults::plugins::HOT_RELOAD);
     }
 }
@@ -464,8 +420,7 @@ void handleFileConfigUpdates(std::string key, std::string value, EditorConfig &s
                 state.file.autosave_mode = defaults::file::AUTOSAVE_MODE;
             }
         }
-    }
-    if (key == constants::file::AUTOSAVE_MODE) {
+    } else if (key == constants::file::AUTOSAVE_MODE) {
         handleBoolUpdate(value, &state.file.show_hidden_files, defaults::file::SHOW_HIDDEN_FILES);
     }
 }

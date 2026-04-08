@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 
-namespace config {
+namespace platform {
 class ConfigWatcher {
   public:
     using OnChangeCallback = std::function<void()>;

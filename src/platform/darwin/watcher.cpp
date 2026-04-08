@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace config {
+namespace platform {
 ConfigWatcher::ConfigWatcher() : running(false), fileDirty(false) {}
 ConfigWatcher::~ConfigWatcher() { stop(); }
 
