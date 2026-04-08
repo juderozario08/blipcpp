@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <blip/buffer/buffer.hpp>
 
 namespace buffer {

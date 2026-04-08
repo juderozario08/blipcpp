@@ -208,21 +208,11 @@ void eventLoop(app::AppState &appState, platform::ConfigWatcher &watcher, config
                           : vim.mode == VimMode::INSERT ? "Insert"
                           : vim.mode == VimMode::VISUAL ? "Visual"
                                                         : "Replace")
-                      << "|\n\n";
+                      << " |\n\n";
             std::string t = buffer.getText();
             std::cout << t.substr(0, buffer.getCursor());
-            std::cout << "\033[47;30m";
-            if (buffer.getTotalLength() == 0 || buffer.getCursor() == buffer.getTotalLength()) {
-                std::cout << " ";
-            } else {
-                std::cout << t[buffer.getCursor()];
-            }
-            std::cout << "\033[0m";
-            if (buffer.getCursor() == buffer.getTotalLength()) {
-                std::cout << "\n";
-            } else {
-                std::cout << t.substr(buffer.getCursor() + 1, t.length() - buffer.getCursor()) << std::endl;
-            }
+            std::cout << "|";
+            std::cout << t.substr(buffer.getCursor(), t.length() - buffer.getCursor()) << std::endl;
         }
 
         watcher.check();
